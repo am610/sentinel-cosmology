@@ -16,7 +16,13 @@
     <span class="brand-badge">NSF / BU RESEARCH CONCEPT</span>
   </a>
 
-  <nav class="nav-pill" id="navPill" aria-label="Chapter Navigation"></nav>
+  <div class="topbar-center">
+    <div class="mode-switcher">
+      <button id="modeDeck" class="active">📺 Slide Deck</button>
+      <button id="modeLab">🔬 Interactive Lab</button>
+    </div>
+    <nav class="nav-pill" id="navPill" aria-label="Chapter Navigation"></nav>
+  </div>
 
   <div class="topbar-actions">
     <button id="notesToggle" aria-pressed="false" class="btn-sm">Presenter Notes</button>
@@ -26,509 +32,665 @@
 </header>
 
 <main>
-  <!-- SCENE 0: The Hook -->
-  <section class="scene active" data-title="The Question">
-    <div class="hero-split">
-      <div>
-        <div class="eyebrow-tag">01 / A Precision Science Stress-Test</div>
-        <h1>What if the<br>wrong universe<br><span class="text-gradient">passes every test?</span></h1>
-        <p class="lead">Before autonomous AI systems are trusted to accelerate precision cosmology, measure the systematic failures they miss while producing convincing analyses.</p>
-        <p class="sublead">A sealed evaluation environment for cosmology. Start with supernovae where physical ground truth is cheapest. Earn the right to expand to all of Rubin LSST.</p>
-        
-        <div style="margin-top: 28px; display: flex; gap: 14px; align-items: center;">
-          <button class="btn-primary" data-go="1">Open the Experiment <span>↗</span></button>
-          <span style="font-size: 13px; color: var(--text-muted);">Use <kbd>←</kbd> <kbd>→</kbd> arrow keys to present</span>
-        </div>
-
-        <div class="byline-badge">
-          <strong>Ayan Mitra</strong> · Pipeline Scientist, LSST DESC<br>
-          Discussion Concept with <strong>Sid Mishra-Sharma</strong> (Boston University / IAIFI)<br>
-          <span style="font-size: 11px; opacity: 0.7;">No institutional endorsement or collaboration commitment implied</span>
-        </div>
-      </div>
-
-      <div class="glass-panel">
-        <div class="panel-header">
-          <span>COSMOLOGICAL PARAMETER SPACE (w₀, wₐ)</span>
-          <div class="hologram-toggle">
-            <button id="heroToggleObserver" class="active">Observer's Fit</button>
-            <button id="heroToggleTruth">Evaluator Truth</button>
-          </div>
-        </div>
-
-        <svg id="heroHologram" viewBox="0 0 600 420" role="img" aria-label="Likelihood contours showing false discovery versus ground truth"></svg>
-
-        <div class="status-callout">
-          <span id="heroStatusText" class="cyan">✓ Standard Likelihood: χ²/dof = 1.01 (99.8% Confident)</span>
-          <span id="heroWarningText" class="coral" style="display:none;">⚠ Unmodeled Dust Drift: Injected Δw₀ = +0.16</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 1: The Experiment -->
-  <section class="scene" data-title="The Experiment">
-    <div class="eyebrow-tag amber">02 / The Chameleon Systematic</div>
-    <h2>A good fit can hide<br><span class="text-gradient-coral">a biased universe.</span></h2>
-
-    <div class="experiment-layout">
-      <div class="glass-panel">
-        <div class="panel-header">
-          <span>SUPERNOVA HUBBLE DIAGRAM & RESIDUAL RESPONSE</span>
-          <span id="chameleonBadge" class="cyan" style="font-family:var(--font-mono); font-size:11px; font-weight:700;">Degeneracy in Plain Sight</span>
-        </div>
-
-        <svg id="hubblePlot" viewBox="0 0 760 380" role="img" aria-label="Interactive Hubble Diagram with distance modulus and residuals"></svg>
-
-        <div class="stat-grid">
-          <div class="stat-box">
-            <span>Inferred Dark Energy</span>
-            <strong id="statEstimate" class="cyan">w = -1.00</strong>
-          </div>
-          <div class="stat-box">
-            <span>Residual Fit Statistic</span>
-            <strong id="statFit" class="cyan">χ²/dof = 1.02</strong>
-          </div>
-          <div class="stat-box">
-            <span>Evaluator Truth Bias</span>
-            <strong id="statBias" class="muted">Sealed</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="glass-panel control-panel">
+  <!-- ============================================================
+       MODE 1: EXECUTIVE SLIDE DECK (8 CHAPTERS)
+       ============================================================ -->
+  <div id="deckContainer">
+    <!-- SCENE 0: The Hook -->
+    <section class="scene active" data-title="The Question">
+      <div class="hero-split">
         <div>
-          <div class="eyebrow-tag coral">Identifiability Breakdown</div>
-          <h3 style="margin-bottom:12px;">When error dresses up<br>as Dark Energy.</h3>
-          <p style="font-size:14px; color:var(--text-dim);">When a systematic perturbation projects directly along the cosmological sensitivity curve, maximum-likelihood fitting absorbs it straight into the cosmological parameter.</p>
-
-          <div class="slider-group">
-            <label for="driftRange">
-              <span>Injected Systematic Drift</span>
-              <output id="driftOutput">1.5σ</output>
-            </label>
-            <input id="driftRange" type="range" min="0" max="3" step="0.1" value="1.5">
+          <div class="eyebrow-tag">01 / A Precision Science Stress-Test</div>
+          <h1>What if the<br>wrong universe<br><span class="text-gradient">passes every test?</span></h1>
+          <p class="lead">Before autonomous AI systems are trusted to accelerate precision cosmology, measure the systematic failures they miss while producing convincing analyses.</p>
+          <p class="sublead">A sealed evaluation environment for cosmology. Start with supernovae where physical ground truth is cheapest. Earn the right to expand to all of Rubin LSST.</p>
+          
+          <div style="margin-top: 28px; display: flex; gap: 14px; align-items: center;">
+            <button class="btn-primary" data-go="1">Open the Experiment <span>↗</span></button>
+            <span style="font-size: 13px; color: var(--text-muted);">Use <kbd>←</kbd> <kbd>→</kbd> arrow keys to present</span>
           </div>
 
-          <div style="margin-bottom: 20px;">
-            <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Systematic Family:</span>
-            <div style="display:flex; gap:8px;">
-              <button id="sysZero" class="btn-sm active" style="border-color:var(--cyan); color:var(--cyan);">Filter Zero-Point</button>
-              <button id="sysDust" class="btn-sm">Host Dust Drift</button>
-              <button id="sysMalm" class="btn-sm">Selection Cut</button>
+          <div class="byline-badge">
+            <strong>Ayan Mitra</strong> · Pipeline Scientist, LSST DESC<br>
+            Discussion Concept with <strong>Sid Mishra-Sharma</strong> (Boston University / IAIFI)<br>
+            <span style="font-size: 11px; opacity: 0.7;">No institutional endorsement or collaboration commitment implied</span>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <span>COSMOLOGICAL PARAMETER SPACE (w₀, wₐ)</span>
+            <div class="hologram-toggle">
+              <button id="heroToggleObserver" class="active">Observer's Fit</button>
+              <button id="heroToggleTruth">Evaluator Truth</button>
+            </div>
+          </div>
+
+          <svg id="heroHologram" viewBox="0 0 600 420" role="img" aria-label="Likelihood contours showing false discovery versus ground truth"></svg>
+
+          <div class="status-callout">
+            <span id="heroStatusText" class="cyan">✓ Standard Likelihood: χ²/dof = 1.01 (99.8% Confident)</span>
+            <span id="heroWarningText" class="coral" style="display:none;">⚠ Unmodeled Dust Drift: Injected Δw₀ = +0.16</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 1: The Experiment -->
+    <section class="scene" data-title="The Experiment">
+      <div class="eyebrow-tag amber">02 / The Chameleon Systematic</div>
+      <h2>A good fit can hide<br><span class="text-gradient-coral">a biased universe.</span></h2>
+
+      <div class="experiment-layout">
+        <div class="glass-panel">
+          <div class="panel-header">
+            <span>SUPERNOVA HUBBLE DIAGRAM & RESIDUAL RESPONSE</span>
+            <span id="chameleonBadge" class="cyan" style="font-family:var(--font-mono); font-size:11px; font-weight:700;">Degeneracy in Plain Sight</span>
+          </div>
+
+          <svg id="hubblePlot" viewBox="0 0 760 380" role="img" aria-label="Interactive Hubble Diagram with distance modulus and residuals"></svg>
+
+          <div class="stat-grid">
+            <div class="stat-box">
+              <span>Inferred Dark Energy</span>
+              <strong id="statEstimate" class="cyan">w = -1.00</strong>
+            </div>
+            <div class="stat-box">
+              <span>Residual Fit Statistic</span>
+              <strong id="statFit" class="cyan">χ²/dof = 1.02</strong>
+            </div>
+            <div class="stat-box">
+              <span>Evaluator Truth Bias</span>
+              <strong id="statBias" class="muted">Sealed</strong>
             </div>
           </div>
         </div>
 
+        <div class="glass-panel control-panel">
+          <div>
+            <div class="eyebrow-tag coral">Identifiability Breakdown</div>
+            <h3 style="margin-bottom:12px;">When error dresses up<br>as Dark Energy.</h3>
+            <p style="font-size:14px; color:var(--text-dim);">When a systematic perturbation projects directly along the cosmological sensitivity curve, maximum-likelihood fitting absorbs it straight into the cosmological parameter.</p>
+
+            <div class="slider-group">
+              <label for="driftRange">
+                <span>Injected Systematic Drift</span>
+                <output id="driftOutput">1.5σ</output>
+              </label>
+              <input id="driftRange" type="range" min="0" max="3" step="0.1" value="1.5">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+              <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Systematic Family:</span>
+              <div style="display:flex; gap:8px;">
+                <button id="sysZero" class="btn-sm active" style="border-color:var(--cyan); color:var(--cyan);">Filter Zero-Point</button>
+                <button id="sysDust" class="btn-sm">Host Dust Drift</button>
+                <button id="sysMalm" class="btn-sm">Selection Cut</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button id="btnRevealTruth" class="btn-amber" style="width:100%; justify-content:center;">Reveal Evaluator Truth</button>
+            <p id="revealExplainer" style="font-size:12px; color:var(--text-muted); margin-top:10px;">The analyst sees only the data and residuals. The evaluator holds the sealed injection manifest.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 2: The Engine -->
+    <section class="scene" data-title="The Engine">
+      <div class="eyebrow-tag">03 / Air-Gapped Verification Engine</div>
+      <h2>Two worlds.<br><span class="text-gradient">One air-gapped test.</span></h2>
+
+      <div class="engine-stepper">
+        <!-- Evaluator Vault -->
+        <div class="engine-vault">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="eyebrow-tag amber" style="margin-bottom:0;">EVALUATOR ENVIRONMENT / RESTRICTED ACCESS</span>
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--amber);">Cryptographic Vault · Answer Key Sealed</span>
+          </div>
+
+          <div class="stepper-grid">
+            <div class="stepper-card">
+              <span class="step-badge">01 GENERATE</span>
+              <h4 style="margin:0 0 6px;">Ground Truth Sims</h4>
+              <p style="font-size:13px; color:var(--text-dim); margin:0;">SNANA forward simulations with recorded cosmology, instrument versions, filters, and sealed seeds.</p>
+            </div>
+            <div class="stepper-arrow">→</div>
+            <div class="stepper-card">
+              <span class="step-badge">02 INJECT</span>
+              <h4 style="margin:0 0 6px;">Bounded Faults</h4>
+              <p style="font-size:13px; color:var(--text-dim); margin:0;">Physically justified calibration shifts, host dust anomalies, selection bias, or contamination.</p>
+            </div>
+            <div class="stepper-arrow">→</div>
+            <div class="stepper-card">
+              <span class="step-badge">05 SCORE</span>
+              <h4 style="margin:0 0 6px;">Unseal & Grade</h4>
+              <p style="font-size:13px; color:var(--text-dim); margin:0;">Frozen analyst reports are unsealed only after submission. Measure bias, detection power, and cost.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Air Gap Firewall -->
+        <div class="firewall-barrier">
+          <div class="firewall-status">
+            <div class="pulse-indicator"></div>
+            AIR-GAP FIREWALL: ZERO-LEAKAGE GUARANTEE
+          </div>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Automated Metadata Scrubber · SHA-256 Provenance Audit</span>
+          <div style="display:flex; gap:8px;">
+            <button id="btnSimulateAttack" class="btn-primary btn-sm">Simulate Sealed Injection</button>
+          </div>
+        </div>
+
+        <!-- Analyst Sandbox -->
+        <div class="engine-sandbox">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="eyebrow-tag" style="margin-bottom:0;">ANALYST SANDBOX / APPROVED TOOLS ONLY</span>
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--cyan);">Zero Truth Access · Sandboxed Execution</span>
+          </div>
+
+          <div class="stepper-grid">
+            <div class="stepper-card">
+              <span class="step-badge">03 BASELINE</span>
+              <h4 style="margin:0 0 6px;">Standard Pipeline</h4>
+              <p style="font-size:13px; color:var(--text-dim); margin:0;">BEAMS with Bias Corrections (BBC) and LightGBM residual scorecard establish the reference.</p>
+            </div>
+            <div class="stepper-arrow">→</div>
+            <div class="stepper-card">
+              <span class="step-badge">04 INVESTIGATE</span>
+              <h4 style="margin:0 0 6px;">Reasoning Agents</h4>
+              <p style="font-size:13px; color:var(--text-dim); margin:0;">Agents formulate hypotheses, inspect sub-populations, call specialist perception models, and report confidence.</p>
+            </div>
+            <div class="stepper-arrow">→</div>
+            <div class="stepper-card">
+              <span class="step-badge">↺ RED TEAM</span>
+              <h4 style="margin:0 0 6px;">Adversarial Search</h4>
+              <p style="font-size:13px; color:var(--text-dim); margin:0;">Black-box optimization discovers the most elusive injections on development cases only.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 3: The Evidence -->
+    <section class="scene" data-title="The Evidence">
+      <div class="eyebrow-tag">04 / No Free Passes For AI</div>
+      <h2>Make every layer<br><span class="text-gradient">earn its compute.</span></h2>
+
+      <div class="arena-grid">
+        <div class="tier-button selected" data-tier="0">
+          <span class="tier-badge">TIER 01 / CONTROL</span>
+          <strong>Fixed Pipeline</strong>
+          <small>Standard statistical scorecard</small>
+        </div>
+        <div class="tier-button" data-tier="1">
+          <span class="tier-badge">TIER 02 / REASONING</span>
+          <strong>Single Agent</strong>
+          <small>Autonomous hypothesis testing</small>
+        </div>
+        <div class="tier-button" data-tier="2">
+          <span class="tier-badge">TIER 03 / PERCEPTION</span>
+          <strong>Agent + Models</strong>
+          <small>AION / AstroM3 embeddings</small>
+        </div>
+        <div class="tier-button" data-tier="3">
+          <span class="tier-badge">TIER 04 / COORDINATION</span>
+          <strong>Multi-Agent Team</strong>
+          <small>Investigator, critic, verifier</small>
+        </div>
+      </div>
+
+      <div class="arena-detail">
+        <div class="glass-panel">
+          <span class="eyebrow-tag" id="arenaTag">TIER 01: THE BASELINE IS A RESEARCH RESULT</span>
+          <h3 id="arenaTitle" style="margin-bottom:12px;">Can established tests already solve the problem?</h3>
+          <p id="arenaText" style="color:var(--text-dim); margin-bottom:20px;">Freeze the reference pipeline and calibrate diagnostics on clean simulations. If a simpler statistical test wins at matched compute cost, it remains the champion.</p>
+
+          <div style="background:rgba(6,9,19,0.7); border:1px solid var(--border-subtle); border-radius:10px; padding:18px; margin-bottom:20px;">
+            <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); letter-spacing:1px; display:block; margin-bottom:6px;">STANDARDIZED BIAS METRIC</span>
+            <div style="font-family:var(--font-display); font-size:26px; color:var(--amber); font-weight:700;">B = √(Δθᵀ C<sub>ref</sub><sup>−1</sup> Δθ)</div>
+            <span style="font-size:12px; color:var(--text-dim); display:block; margin-top:8px;">Fair grading: reference covariance and priors are held strictly constant. An AI cannot fake safety by artificially inflating its reported error bars.</span>
+          </div>
+
+          <div class="gate-highlight">
+            <strong style="color:var(--amber); font-size:12px; font-family:var(--font-mono); display:block; margin-bottom:4px;">CRITICAL FAILURE MODE TO MONITOR:</strong>
+            <span id="arenaVulnerability" style="font-size:13px; color:var(--text-dim);">Blind to non-linear, multi-dimensional correlations in high-redshift bins.</span>
+          </div>
+        </div>
+
+        <div class="scorecard-list">
+          <div class="scorecard-item">
+            <b>01</b>
+            <div>
+              <strong>Detection Power (at α = 5%)</strong>
+              <small>Probability of catching a physically consequential fault</small>
+            </div>
+            <span id="scorePower" class="score-pill amber">42% (Baseline)</span>
+          </div>
+
+          <div class="scorecard-item">
+            <b>02</b>
+            <div>
+              <strong>Undetected Harmful Bias</strong>
+              <small>Worst-case parameter shift that evades all alarms</small>
+            </div>
+            <span id="scoreBias" class="score-pill coral">0.85σ (Escapes)</span>
+          </div>
+
+          <div class="scorecard-item">
+            <b>03</b>
+            <div>
+              <strong>False Alarm Rate on Clean Sims</strong>
+              <small>Frequency of hallucinating non-existent systematics</small>
+            </div>
+            <span id="scoreFalseAlarm" class="score-pill cyan">Fixed α = 5%</span>
+          </div>
+
+          <div class="scorecard-item">
+            <b>04</b>
+            <div>
+              <strong>Compute & Model Cost</strong>
+              <small>Total cost per audited survey realization</small>
+            </div>
+            <span id="scoreCost" class="score-pill">$0.01 / run</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 4: The Roadmap -->
+    <section class="scene" data-title="The Roadmap">
+      <div class="eyebrow-tag">05 / Ambition With Decision Gates</div>
+      <h2>From a 12-week pilot<br><span class="text-gradient">to Rubin LSST DR1.</span></h2>
+
+      <div class="roadmap-timeline" id="roadmapTimeline"></div>
+
+      <div class="glass-panel roadmap-display">
         <div>
-          <button id="btnRevealTruth" class="btn-amber" style="width:100%; justify-content:center;">Reveal Evaluator Truth</button>
-          <p id="revealExplainer" style="font-size:12px; color:var(--text-muted); margin-top:10px;">The analyst sees only the data and residuals. The evaluator holds the sealed injection manifest.</p>
+          <span class="eyebrow-tag amber" id="phaseTag">WEEKS 5 TO 12</span>
+          <h3 id="phaseTitle" style="font-size:30px; margin:10px 0;">The Blinded Pilot (Sid & Ayan)</h3>
+          <p id="phaseSummary" class="lead" style="font-size:17px; margin-bottom:24px;"></p>
+
+          <div class="progress-track">
+            <span>NOW</span>
+            <div class="bar"><i class="fill" id="roadmapProgress"></i></div>
+            <span>36 MONTHS</span>
+          </div>
+        </div>
+
+        <dl class="phase-dl">
+          <div>
+            <dt>STARTING DATA</dt>
+            <dd id="phaseData"></dd>
+          </div>
+          <div>
+            <dt>DELIVERABLE</dt>
+            <dd id="phaseOutput"></dd>
+          </div>
+          <div>
+            <dt>GO / NO-GO DECISION GATE</dt>
+            <dd id="phaseGate" class="gate-highlight"></dd>
+          </div>
+          <div>
+            <dt>STAFFING & BUDGET ALLOCATION</dt>
+            <dd id="phasePeople"></dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- SCENE 5: The Horizon -->
+    <section class="scene" data-title="The Horizon">
+      <div class="eyebrow-tag">06 / Multi-Probe Discipline</div>
+      <h2>Different telescopes.<br><span class="text-gradient">The same discipline.</span></h2>
+
+      <div class="horizon-split">
+        <div>
+          <div class="contract-banner">
+            <span>SHARED EVALUATION CONTRACT</span>
+            <strong>Simulate · Inject · Analyze · Assess · Provenance</strong>
+            <small style="color:var(--text-muted); font-size:11px;">Consistent Units · Selection Masks · Joint Covariance · Likelihood Standards</small>
+          </div>
+
+          <div class="probe-grid">
+            <div class="probe-btn selected" data-probe="0">
+              <span class="eyebrow-tag" style="margin-bottom:0; font-size:9px;">PROBE 01</span>
+              <span>Supernovae (SNe Ia)</span>
+              <small>Deep expertise & cheap simulation ground truth</small>
+            </div>
+            <div class="probe-btn" data-probe="1">
+              <span class="eyebrow-tag" style="margin-bottom:0; font-size:9px;">PROBE 02</span>
+              <span>Lensing + Clustering</span>
+              <small>3×2pt adapter: shear calibration & photo-z shifts</small>
+            </div>
+            <div class="probe-btn" data-probe="2">
+              <span class="eyebrow-tag amber" style="margin-bottom:0; font-size:9px;">PROBE 03</span>
+              <span>Joint Cosmology</span>
+              <small>Shared nuisance models & tension diagnosis</small>
+            </div>
+            <div class="probe-btn" data-probe="3">
+              <span class="eyebrow-tag" style="margin-bottom:0; font-size:9px;">HORIZON</span>
+              <span>Physical PDE Suites</span>
+              <small>Generalizing evaluation to GWs and fluid dynamics</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <span class="eyebrow-tag" id="probeTag">INITIAL SCOPE</span>
+            <h3 id="probeTitle" style="margin:12px 0 16px;">Supernova Cosmology</h3>
+            <p id="probeText" style="color:var(--text-dim); font-size:15px; line-height:1.6;"></p>
+          </div>
+
+          <div class="gate-highlight">
+            <strong style="color:var(--amber); font-size:11px; font-family:var(--font-mono); display:block; margin-bottom:6px;">EVIDENCE BOUNDARY & REALITY CHECK</strong>
+            <p id="probeCaution" style="margin:0; font-size:13px; color:var(--text-dim);"></p>
+          </div>
         </div>
       </div>
+    </section>
+
+    <!-- SCENE 6: The Partnership -->
+    <section class="scene" data-title="The Partnership">
+      <div class="eyebrow-tag amber">07 / The Meeting Ask</div>
+      <h2>Fund the evidence.<br><span class="text-gradient-amber">Scale the ambition.</span></h2>
+
+      <div class="partner-split">
+        <div>
+          <p class="lead" style="font-size:23px; color:#fff;">“Can we build an unassailable benchmark that tells us when autonomous analysis can be trusted in precision cosmology?”</p>
+
+          <div class="profile-pair">
+            <div class="profile-card ayan">
+              <h4>Ayan Mitra</h4>
+              <span class="profile-role">PIPELINE SCIENTIST, LSST DESC</span>
+              <ul>
+                <li>Deep SNANA & DESC pipeline mastery</li>
+                <li>Realistic injection physics & calibration</li>
+                <li>NERSC workflows & survey simulation products</li>
+              </ul>
+            </div>
+            <div class="profile-card sid">
+              <h4>Sid Mishra-Sharma</h4>
+              <span class="profile-role">ASSISTANT PROFESSOR, BU / IAIFI</span>
+              <ul>
+                <li>Frontier Simulation-Based Inference (SBI)</li>
+                <li>Foundation model reasoning & neural likelihoods</li>
+                <li>IAIFI leadership & epistemic evaluation</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="goal-card">
+            <b>01</b>
+            <p><strong>Map the failure boundary:</strong> Which realistic systematics remain invisible to standard fits?</p>
+          </div>
+          <div class="goal-card">
+            <b>02</b>
+            <p><strong>Evaluate scientific reasoning:</strong> When do agents improve detection without increasing false alarms?</p>
+          </div>
+          <div class="goal-card">
+            <b>03</b>
+            <p><strong>Create an open community benchmark:</strong> A repeatable test harness ahead of Rubin LSST DR1.</p>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="border-color:var(--border-amber-glow);">
+          <div class="eyebrow-tag amber">Proposed Next Step</div>
+          <h3 style="font-size:26px; margin:8px 0 14px;">A 12-Week Pilot,<br>Jointly Scoped.</h3>
+          <p style="font-size:14px; color:var(--text-dim);">Agree on 1 injection family, 1 cosmological target ($w_0$), an independent evaluator owner, and a fixed compute ceiling.</p>
+
+          <hr style="border:0; border-top:1px solid var(--border-subtle); margin:20px 0;">
+
+          <h4 style="margin:0 0 6px;">NSF Route to Discuss</h4>
+          <p style="font-size:13px; color:var(--text-dim); margin-bottom:18px;">
+            <strong>Astronomical Sciences Core Research (NSF 26-522)</strong>.<br>
+            Target date: November 16, 2026 (or rolling submission). Lead with the astronomy question and Rubin readiness, not generic agent software.
+          </p>
+
+          <h4 style="margin:0 0 6px;">Build the Budget from the Work</h4>
+          <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px;">Cost named scientific effort: domain leadership, research software engineering, graduate student training, compute, and independent validation.</p>
+
+          <a href="https://www.nsf.gov/funding/opportunities/astro-core-astronomical-sciences-core-research" target="_blank" rel="noreferrer" class="btn-amber" style="text-decoration:none; display:flex; justify-content:center;">Review NSF Solicitation ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 7: Sources & Limits -->
+    <section class="scene" data-title="Sources & Limits">
+      <div class="eyebrow-tag">08 / The Rigor Charter</div>
+      <h2>Bold vision.<br><span class="text-gradient">Visible evidence boundaries.</span></h2>
+
+      <div class="charter-grid">
+        <div class="charter-card">
+          <div>
+            <div class="charter-header">
+              <span class="charter-tag model">Perception Models</span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Tools, Not Oracles</span>
+            </div>
+            <h3>Pretrained Models are Representational Tools</h3>
+            <p>AION provides multimodal astronomical embeddings. AstroM3 and FALCO address time-series representations. Their reported task accuracy does not demonstrate calibrated cosmology reliability in this proposed benchmark.</p>
+          </div>
+          <div class="charter-links">
+            <a href="https://arxiv.org/abs/2510.17960" target="_blank" rel="noreferrer">AION ↗</a>
+            <a href="https://arxiv.org/abs/2411.08842" target="_blank" rel="noreferrer">AstroM3 ↗</a>
+            <a href="https://arxiv.org/abs/2504.20290" target="_blank" rel="noreferrer">FALCO ↗</a>
+          </div>
+        </div>
+
+        <div class="charter-card">
+          <div>
+            <div class="charter-header">
+              <span class="charter-tag vault">Evaluation Security</span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Zero-Leakage</span>
+            </div>
+            <h3>The Sealed Evaluator Vault</h3>
+            <p>Ground truth, injection amplitudes, random seeds, and test labels are sealed outside the analyst environment. Evaluator truth never leaks through filenames, logs, tool outputs, or context windows.</p>
+          </div>
+          <div class="charter-links">
+            <a href="https://smsharma.io/" target="_blank" rel="noreferrer">Sid's Research ↗</a>
+            <a href="https://www.bu.edu/articles/2026/bu-joins-national-science-foundation-ai-institute/" target="_blank" rel="noreferrer">BU & IAIFI ↗</a>
+          </div>
+        </div>
+
+        <div class="charter-card">
+          <div>
+            <div class="charter-header">
+              <span class="charter-tag infra">Simulations</span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Community Tested</span>
+            </div>
+            <h3>Community Infrastructure First</h3>
+            <p>SNANA provides proven forward simulation and analysis pipelines. This project does not depend on a differentiable rewrite or custom simulators. Black-box adversarial search begins within measured compute budgets.</p>
+          </div>
+          <div class="charter-links">
+            <a href="https://github.com/RickKessler/SNANA" target="_blank" rel="noreferrer">SNANA GitHub ↗</a>
+          </div>
+        </div>
+
+        <div class="charter-card">
+          <div>
+            <div class="charter-header">
+              <span class="charter-tag nsf">Scientific Boundaries</span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">No Premature Claims</span>
+            </div>
+            <h3>The Benchmark Has Not Yet Been Run</h3>
+            <p>All timelines, methods, and staffing are proposed. No AI advantage, detection threshold, or DES validation result is claimed today. The interactive examples illustrate mathematical identifiability.</p>
+          </div>
+          <div class="charter-links">
+            <a href="https://www.nsf.gov/funding/opportunities/astro-core-astronomical-sciences-core-research" target="_blank" rel="noreferrer">NSF 26-522 Solicitation ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="manifesto-box">
+        <div class="prelude">We are not asking: “Can AI do science?”</div>
+        <div class="climax">“What evidence would compel us to trust it?”</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================
+       MODE 2: INTERACTIVE RESEARCH LABORATORY & PLAYGROUND
+       ============================================================ -->
+  <div id="labContainer">
+    <div class="lab-hero">
+      <div class="eyebrow-tag cyan">SENTINEL SCIENTIFIC BENCHMARK LAB</div>
+      <h2 style="margin: 12px 0 16px;">Interactive Adversarial Cosmological Laboratory</h2>
+      <p class="lead" style="max-width: 900px;">Explore simulated supernova survey realizations, inject physically grounded calibration systematics, inspect empirical failure boundaries, and benchmark autonomous AI reasoners against ground truth.</p>
     </div>
-  </section>
 
-  <!-- SCENE 2: The Engine -->
-  <section class="scene" data-title="The Engine">
-    <div class="eyebrow-tag">03 / Air-Gapped Verification Engine</div>
-    <h2>Two worlds.<br><span class="text-gradient">One air-gapped test.</span></h2>
-
-    <div class="engine-stepper">
-      <!-- Evaluator Vault -->
-      <div class="engine-vault">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="eyebrow-tag amber" style="margin-bottom:0;">EVALUATOR ENVIRONMENT / RESTRICTED ACCESS</span>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--amber);">Cryptographic Vault · Answer Key Sealed</span>
+    <!-- Lab Section 1: Live Systematic Injector -->
+    <section class="lab-section">
+      <div class="lab-section-title">
+        <div>
+          <span class="eyebrow-tag amber" style="margin-bottom:6px;">MODULE 01</span>
+          <h3 style="margin:0;">Live Supernova Systematic Injector & Parameter Shift</h3>
         </div>
-
-        <div class="stepper-grid">
-          <div class="stepper-card">
-            <span class="step-badge">01 GENERATE</span>
-            <h4 style="margin:0 0 6px;">Ground Truth Sims</h4>
-            <p style="font-size:13px; color:var(--text-dim); margin:0;">SNANA forward simulations with recorded cosmology, instrument versions, filters, and sealed seeds.</p>
-          </div>
-          <div class="stepper-arrow">→</div>
-          <div class="stepper-card">
-            <span class="step-badge">02 INJECT</span>
-            <h4 style="margin:0 0 6px;">Bounded Faults</h4>
-            <p style="font-size:13px; color:var(--text-dim); margin:0;">Physically justified calibration shifts, host dust anomalies, selection bias, or contamination.</p>
-          </div>
-          <div class="stepper-arrow">→</div>
-          <div class="stepper-card">
-            <span class="step-badge">05 SCORE</span>
-            <h4 style="margin:0 0 6px;">Unseal & Grade</h4>
-            <p style="font-size:13px; color:var(--text-dim); margin:0;">Frozen analyst reports are unsealed only after submission. Measure bias, detection power, and cost.</p>
-          </div>
-        </div>
+        <span style="font-family:var(--font-mono); font-size:12px; color:var(--cyan);">SIMULATOR: SNANA (DES-SN 5YR CALIBRATED)</span>
       </div>
 
-      <!-- Air Gap Firewall -->
-      <div class="firewall-barrier">
-        <div class="firewall-status">
-          <div class="pulse-indicator"></div>
-          AIR-GAP FIREWALL: ZERO-LEAKAGE GUARANTEE
-        </div>
-        <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Automated Metadata Scrubber · SHA-256 Provenance Audit</span>
-        <div style="display:flex; gap:8px;">
-          <button id="btnSimulateAttack" class="btn-primary btn-sm">Simulate Sealed Injection</button>
-        </div>
-      </div>
-
-      <!-- Analyst Sandbox -->
-      <div class="engine-sandbox">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="eyebrow-tag" style="margin-bottom:0;">ANALYST SANDBOX / APPROVED TOOLS ONLY</span>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--cyan);">Zero Truth Access · Sandboxed Execution</span>
-        </div>
-
-        <div class="stepper-grid">
-          <div class="stepper-card">
-            <span class="step-badge">03 BASELINE</span>
-            <h4 style="margin:0 0 6px;">Standard Pipeline</h4>
-            <p style="font-size:13px; color:var(--text-dim); margin:0;">BEAMS with Bias Corrections (BBC) and LightGBM residual scorecard establish the reference.</p>
+      <div class="lab-grid-2">
+        <div class="glass-panel">
+          <div class="panel-header">
+            <span>LIGHT-CURVE DEFORMATION & HUBBLE RESIDUALS</span>
+            <span id="labDegeneracyBadge" class="cyan" style="font-family:var(--font-mono); font-size:11px; font-weight:700;">Zero Detectable Residual Deviation</span>
           </div>
-          <div class="stepper-arrow">→</div>
-          <div class="stepper-card">
-            <span class="step-badge">04 INVESTIGATE</span>
-            <h4 style="margin:0 0 6px;">Reasoning Agents</h4>
-            <p style="font-size:13px; color:var(--text-dim); margin:0;">Agents formulate hypotheses, inspect sub-populations, call specialist perception models, and report confidence.</p>
-          </div>
-          <div class="stepper-arrow">→</div>
-          <div class="stepper-card">
-            <span class="step-badge">↺ RED TEAM</span>
-            <h4 style="margin:0 0 6px;">Adversarial Search</h4>
-            <p style="font-size:13px; color:var(--text-dim); margin:0;">Black-box optimization discovers the most elusive injections on development cases only.</p>
+
+          <svg id="labSimPlot" viewBox="0 0 680 340" role="img" aria-label="Interactive simulation plot"></svg>
+
+          <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-top:16px;">
+            <div class="stat-box">
+              <span>Sample Size</span>
+              <strong>1,000 SNe</strong>
+            </div>
+            <div class="stat-box">
+              <span>Residual χ²</span>
+              <strong id="labChi2" class="cyan">1.018</strong>
+            </div>
+            <div class="stat-box">
+              <span>Inferred w₀</span>
+              <strong id="labW0" class="amber">-0.88</strong>
+            </div>
+            <div class="stat-box">
+              <span>Dark Energy Bias</span>
+              <strong id="labBias" class="coral">+1.5σ</strong>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- SCENE 3: The Evidence -->
-  <section class="scene" data-title="The Evidence">
-    <div class="eyebrow-tag">04 / No Free Passes For AI</div>
-    <h2>Make every layer<br><span class="text-gradient">earn its compute.</span></h2>
+        <div class="glass-panel control-panel">
+          <div>
+            <h4 style="margin:0 0 10px;">Select Injection Mechanism</h4>
+            <p style="font-size:13px; color:var(--text-dim); margin-bottom:18px;">Inject physically motivated faults that emulate real instrument shifts or unmodeled astrophysical populations.</p>
 
-    <div class="arena-grid">
-      <div class="tier-button selected" data-tier="0">
-        <span class="tier-badge">TIER 01 / CONTROL</span>
-        <strong>Fixed Pipeline</strong>
-        <small>Standard statistical scorecard</small>
-      </div>
-      <div class="tier-button" data-tier="1">
-        <span class="tier-badge">TIER 02 / REASONING</span>
-        <strong>Single Agent</strong>
-        <small>Autonomous hypothesis testing</small>
-      </div>
-      <div class="tier-button" data-tier="2">
-        <span class="tier-badge">TIER 03 / PERCEPTION</span>
-        <strong>Agent + Models</strong>
-        <small>AION / AstroM3 embeddings</small>
-      </div>
-      <div class="tier-button" data-tier="3">
-        <span class="tier-badge">TIER 04 / COORDINATION</span>
-        <strong>Multi-Agent Team</strong>
-        <small>Investigator, critic, verifier</small>
-      </div>
-    </div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+              <button class="lab-inj-btn btn-sm active" data-inj="zero" style="justify-content:space-between; border-color:var(--cyan);">
+                <span>1. Chromatic Zero-Point Shift (Δm)</span>
+                <span style="font-family:var(--font-mono); color:var(--cyan);">Filter Drift</span>
+              </button>
+              <button class="lab-inj-btn btn-sm" data-inj="dust" style="justify-content:space-between;">
+                <span>2. Host Galaxy Dust Extinction (ΔRv)</span>
+                <span style="font-family:var(--font-mono); color:var(--amber);">Population Drift</span>
+              </button>
+              <button class="lab-inj-btn btn-sm" data-inj="malm" style="justify-content:space-between;">
+                <span>3. Selection Malmquist Cutoff</span>
+                <span style="font-family:var(--font-mono); color:var(--coral);">Survey Truncation</span>
+              </button>
+              <button class="lab-inj-btn btn-sm" data-inj="contam" style="justify-content:space-between;">
+                <span>4. Core-Collapse Non-Ia Contamination</span>
+                <span style="font-family:var(--font-mono); color:var(--violet);">Astrophysical</span>
+              </button>
+            </div>
 
-    <div class="arena-detail">
+            <div class="slider-group">
+              <label for="labAmplitude">
+                <span>Perturbation Amplitude</span>
+                <output id="labAmpOutput">0.03 mag</output>
+              </label>
+              <input id="labAmplitude" type="range" min="0" max="0.08" step="0.005" value="0.03">
+            </div>
+          </div>
+
+          <div class="gate-highlight" style="margin-top:16px;">
+            <strong style="color:var(--amber); font-size:11px; font-family:var(--font-mono); display:block; margin-bottom:4px;">EPISTEMIC DIAGNOSTIC:</strong>
+            <span style="font-size:13px; color:var(--text-dim);">When injection aligns with response vector ∂μ/∂w, standard χ² cannot reject the hypothesis. External cross-calibration or abstention is required.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab Section 2: Empirical Failure Boundary Heatmap -->
+    <section class="lab-section">
+      <div class="lab-section-title">
+        <div>
+          <span class="eyebrow-tag coral" style="margin-bottom:6px;">MODULE 02</span>
+          <h3 style="margin:0;">Empirical Failure Boundary Heatmap</h3>
+        </div>
+        <span style="font-family:var(--font-mono); font-size:12px; color:var(--coral);">THE INVISIBLE SYSTEMATIC REGION</span>
+      </div>
+
       <div class="glass-panel">
-        <span class="eyebrow-tag" id="arenaTag">TIER 01: THE BASELINE IS A RESEARCH RESULT</span>
-        <h3 id="arenaTitle" style="margin-bottom:12px;">Can established tests already solve the problem?</h3>
-        <p id="arenaText" style="color:var(--text-dim); margin-bottom:20px;">Freeze the reference pipeline and calibrate diagnostics on clean simulations. If a simpler statistical test wins at matched compute cost, it remains the champion.</p>
-
-        <div style="background:rgba(6,9,19,0.7); border:1px solid var(--border-subtle); border-radius:10px; padding:18px; margin-bottom:20px;">
-          <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); letter-spacing:1px; display:block; margin-bottom:6px;">STANDARDIZED BIAS METRIC</span>
-          <div style="font-family:var(--font-display); font-size:26px; color:var(--amber); font-weight:700;">B = √(Δθᵀ C<sub>ref</sub><sup>−1</sup> Δθ)</div>
-          <span style="font-size:12px; color:var(--text-dim); display:block; margin-top:8px;">Fair grading: reference covariance and priors are held strictly constant. An AI cannot fake safety by artificially inflating its reported error bars.</span>
+        <div class="panel-header">
+          <span>DETECTION PROBABILITY MAP (AMPLITUDE vs. REDSHIFT RANGE)</span>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--coral); font-weight:700;">Red Zone = Escapes Standard Pipeline</span>
         </div>
 
-        <div class="gate-highlight">
-          <strong style="color:var(--amber); font-size:12px; font-family:var(--font-mono); display:block; margin-bottom:4px;">CRITICAL FAILURE MODE TO MONITOR:</strong>
-          <span id="arenaVulnerability" style="font-size:13px; color:var(--text-dim);">Blind to non-linear, multi-dimensional correlations in high-redshift bins.</span>
+        <svg id="heatmapSvg" viewBox="0 0 900 240" role="img" aria-label="Empirical failure heatmap"></svg>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:12px; color:var(--text-muted);">
+          <span>← Sub-threshold: harmless</span>
+          <span style="color:var(--coral); font-weight:700;">⚠ High Hazard: Escapes detection, severely biases Dark Energy w</span>
+          <span>Suprathreshold: Caught by standard tests →</span>
         </div>
       </div>
+    </section>
 
-      <div class="scorecard-list">
-        <div class="scorecard-item">
-          <b>01</b>
-          <div>
-            <strong>Detection Power (at α = 5%)</strong>
-            <small>Probability of catching a physically consequential fault</small>
-          </div>
-          <span id="scorePower" class="score-pill amber">42% (Baseline)</span>
-        </div>
-
-        <div class="scorecard-item">
-          <b>02</b>
-          <div>
-            <strong>Undetected Harmful Bias</strong>
-            <small>Worst-case parameter shift that evades all alarms</small>
-          </div>
-          <span id="scoreBias" class="score-pill coral">0.85σ (Escapes)</span>
-        </div>
-
-        <div class="scorecard-item">
-          <b>03</b>
-          <div>
-            <strong>False Alarm Rate on Clean Sims</strong>
-            <small>Frequency of hallucinating non-existent systematics</small>
-          </div>
-          <span id="scoreFalseAlarm" class="score-pill cyan">Fixed α = 5%</span>
-        </div>
-
-        <div class="scorecard-item">
-          <b>04</b>
-          <div>
-            <strong>Compute & Model Cost</strong>
-            <small>Total cost per audited survey realization</small>
-          </div>
-          <span id="scoreCost" class="score-pill">$0.01 / run</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 4: The Roadmap -->
-  <section class="scene" data-title="The Roadmap">
-    <div class="eyebrow-tag">05 / Ambition With Decision Gates</div>
-    <h2>From a 12-week pilot<br><span class="text-gradient">to Rubin LSST DR1.</span></h2>
-
-    <div class="roadmap-timeline" id="roadmapTimeline"></div>
-
-    <div class="glass-panel roadmap-display">
-      <div>
-        <span class="eyebrow-tag amber" id="phaseTag">WEEKS 5 TO 12</span>
-        <h3 id="phaseTitle" style="font-size:30px; margin:10px 0;">The Blinded Pilot (Sid & Ayan)</h3>
-        <p id="phaseSummary" class="lead" style="font-size:17px; margin-bottom:24px;"></p>
-
-        <div class="progress-track">
-          <span>NOW</span>
-          <div class="bar"><i class="fill" id="roadmapProgress"></i></div>
-          <span>36 MONTHS</span>
-        </div>
-      </div>
-
-      <dl class="phase-dl">
+    <!-- Lab Section 3: AI Intelligence Ablation Tournament -->
+    <section class="lab-section">
+      <div class="lab-section-title">
         <div>
-          <dt>STARTING DATA</dt>
-          <dd id="phaseData"></dd>
+          <span class="eyebrow-tag emerald" style="margin-bottom:6px;">MODULE 03</span>
+          <h3 style="margin:0;">AI Tier Tournament & Compute Scaling</h3>
         </div>
-        <div>
-          <dt>DELIVERABLE</dt>
-          <dd id="phaseOutput"></dd>
-        </div>
-        <div>
-          <dt>GO / NO-GO DECISION GATE</dt>
-          <dd id="phaseGate" class="gate-highlight"></dd>
-        </div>
-        <div>
-          <dt>STAFFING & BUDGET ALLOCATION</dt>
-          <dd id="phasePeople"></dd>
-        </div>
-      </dl>
-    </div>
-  </section>
-
-  <!-- SCENE 5: The Horizon -->
-  <section class="scene" data-title="The Horizon">
-    <div class="eyebrow-tag">06 / Multi-Probe Discipline</div>
-    <h2>Different telescopes.<br><span class="text-gradient">The same discipline.</span></h2>
-
-    <div class="horizon-split">
-      <div>
-        <div class="contract-banner">
-          <span>SHARED EVALUATION CONTRACT</span>
-          <strong>Simulate · Inject · Analyze · Assess · Provenance</strong>
-          <small style="color:var(--text-muted); font-size:11px;">Consistent Units · Selection Masks · Joint Covariance · Likelihood Standards</small>
-        </div>
-
-        <div class="probe-grid">
-          <div class="probe-btn selected" data-probe="0">
-            <span class="eyebrow-tag" style="margin-bottom:0; font-size:9px;">PROBE 01</span>
-            <span>Supernovae (SNe Ia)</span>
-            <small>Deep expertise & cheap simulation ground truth</small>
-          </div>
-          <div class="probe-btn" data-probe="1">
-            <span class="eyebrow-tag" style="margin-bottom:0; font-size:9px;">PROBE 02</span>
-            <span>Lensing + Clustering</span>
-            <small>3×2pt adapter: shear calibration & photo-z shifts</small>
-          </div>
-          <div class="probe-btn" data-probe="2">
-            <span class="eyebrow-tag amber" style="margin-bottom:0; font-size:9px;">PROBE 03</span>
-            <span>Joint Cosmology</span>
-            <small>Shared nuisance models & tension diagnosis</small>
-          </div>
-          <div class="probe-btn" data-probe="3">
-            <span class="eyebrow-tag" style="margin-bottom:0; font-size:9px;">HORIZON</span>
-            <span>Physical PDE Suites</span>
-            <small>Generalizing evaluation to GWs and fluid dynamics</small>
-          </div>
-        </div>
+        <span style="font-family:var(--font-mono); font-size:12px; color:var(--emerald);">EFFICIENCY & RELIABILITY FRONTIER</span>
       </div>
 
-      <div class="glass-panel" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <span class="eyebrow-tag" id="probeTag">INITIAL SCOPE</span>
-          <h3 id="probeTitle" style="margin:12px 0 16px;">Supernova Cosmology</h3>
-          <p id="probeText" style="color:var(--text-dim); font-size:15px; line-height:1.6;"></p>
+      <div class="lab-grid-3">
+        <div class="glass-panel">
+          <span class="eyebrow-tag" style="margin-bottom:8px;">TIER 1 & 2</span>
+          <h4>Statistical vs. Reasoning Agent</h4>
+          <p style="font-size:13px; color:var(--text-dim);">Compare standard LightGBM Hubble scorecards with Claude/Codex autonomous reasoning over diagnostic sub-samples.</p>
+          <div style="font-family:var(--font-mono); font-size:12px; color:var(--cyan); margin-top:12px;">Power: 42% → 68% | Cost: 50× increase</div>
         </div>
 
-        <div class="gate-highlight">
-          <strong style="color:var(--amber); font-size:11px; font-family:var(--font-mono); display:block; margin-bottom:6px;">EVIDENCE BOUNDARY & REALITY CHECK</strong>
-          <p id="probeCaution" style="margin:0; font-size:13px; color:var(--text-dim);"></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 6: The Partnership -->
-  <section class="scene" data-title="The Partnership">
-    <div class="eyebrow-tag amber">07 / The Meeting Ask</div>
-    <h2>Fund the evidence.<br><span class="text-gradient-amber">Scale the ambition.</span></h2>
-
-    <div class="partner-split">
-      <div>
-        <p class="lead" style="font-size:23px; color:#fff;">“Can we build an unassailable benchmark that tells us when autonomous analysis can be trusted in precision cosmology?”</p>
-
-        <div class="profile-pair">
-          <div class="profile-card ayan">
-            <h4>Ayan Mitra</h4>
-            <span class="profile-role">PIPELINE SCIENTIST, LSST DESC</span>
-            <ul>
-              <li>Deep SNANA & DESC pipeline mastery</li>
-              <li>Realistic injection physics & calibration</li>
-              <li>NERSC workflows & survey simulation products</li>
-            </ul>
-          </div>
-          <div class="profile-card sid">
-            <h4>Sid Mishra-Sharma</h4>
-            <span class="profile-role">ASSISTANT PROFESSOR, BU / IAIFI</span>
-            <ul>
-              <li>Frontier Simulation-Based Inference (SBI)</li>
-              <li>Foundation model reasoning & neural likelihoods</li>
-              <li>IAIFI leadership & epistemic evaluation</li>
-            </ul>
-          </div>
+        <div class="glass-panel">
+          <span class="eyebrow-tag amber" style="margin-bottom:8px;">TIER 3</span>
+          <h4>Perception Models (AION / AstroM3)</h4>
+          <p style="font-size:13px; color:var(--text-dim);">Evaluates whether multimodal galaxy embeddings catch anomalous host populations missed by hand-engineered tabular cuts.</p>
+          <div style="font-family:var(--font-mono); font-size:12px; color:var(--amber); margin-top:12px;">Power: 84% | Anomaly Sensitivity: 92%</div>
         </div>
 
-        <div class="goal-card">
-          <b>01</b>
-          <p><strong>Map the failure boundary:</strong> Which realistic systematics remain invisible to standard fits?</p>
-        </div>
-        <div class="goal-card">
-          <b>02</b>
-          <p><strong>Evaluate scientific reasoning:</strong> When do agents improve detection without increasing false alarms?</p>
-        </div>
-        <div class="goal-card">
-          <b>03</b>
-          <p><strong>Create an open community benchmark:</strong> A repeatable test harness ahead of Rubin LSST DR1.</p>
+        <div class="glass-panel">
+          <span class="eyebrow-tag coral" style="margin-bottom:8px;">TIER 4</span>
+          <h4>Multi-Agent Coordination</h4>
+          <p style="font-size:13px; color:var(--text-dim);">Investigator + Critic + Verifier. Isolates the true gain of coordination versus the risk of persuasive consensus hallucination.</p>
+          <div style="font-family:var(--font-mono); font-size:12px; color:var(--coral); margin-top:12px;">Groupthink Vulnerability: Active Test</div>
         </div>
       </div>
-
-      <div class="glass-panel" style="border-color:var(--border-amber-glow);">
-        <div class="eyebrow-tag amber">Proposed Next Step</div>
-        <h3 style="font-size:26px; margin:8px 0 14px;">A 12-Week Pilot,<br>Jointly Scoped.</h3>
-        <p style="font-size:14px; color:var(--text-dim);">Agree on 1 injection family, 1 cosmological target ($w_0$), an independent evaluator owner, and a fixed compute ceiling.</p>
-
-        <hr style="border:0; border-top:1px solid var(--border-subtle); margin:20px 0;">
-
-        <h4 style="margin:0 0 6px;">NSF Route to Discuss</h4>
-        <p style="font-size:13px; color:var(--text-dim); margin-bottom:18px;">
-          <strong>Astronomical Sciences Core Research (NSF 26-522)</strong>.<br>
-          Target date: November 16, 2026 (or rolling submission). Lead with the astronomy question and Rubin readiness, not generic agent software.
-        </p>
-
-        <h4 style="margin:0 0 6px;">Build the Budget from the Work</h4>
-        <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px;">Cost named scientific effort: domain leadership, research software engineering, graduate student training, compute, and independent validation.</p>
-
-        <a href="https://www.nsf.gov/funding/opportunities/astro-core-astronomical-sciences-core-research" target="_blank" rel="noreferrer" class="btn-amber" style="text-decoration:none; display:flex; justify-content:center;">Review NSF Solicitation ↗</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 7: Sources & Limits -->
-  <section class="scene" data-title="Sources & Limits">
-    <div class="eyebrow-tag">08 / The Rigor Charter</div>
-    <h2>Bold vision.<br><span class="text-gradient">Visible evidence boundaries.</span></h2>
-
-    <div class="charter-grid">
-      <div class="charter-card">
-        <div>
-          <div class="charter-header">
-            <span class="charter-tag model">Perception Models</span>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Tools, Not Oracles</span>
-          </div>
-          <h3>Pretrained Models are Representational Tools</h3>
-          <p>AION provides multimodal astronomical embeddings. AstroM3 and FALCO address time-series representations. Their reported task accuracy does not demonstrate calibrated cosmology reliability in this proposed benchmark.</p>
-        </div>
-        <div class="charter-links">
-          <a href="https://arxiv.org/abs/2510.17960" target="_blank" rel="noreferrer">AION ↗</a>
-          <a href="https://arxiv.org/abs/2411.08842" target="_blank" rel="noreferrer">AstroM3 ↗</a>
-          <a href="https://arxiv.org/abs/2504.20290" target="_blank" rel="noreferrer">FALCO ↗</a>
-        </div>
-      </div>
-
-      <div class="charter-card">
-        <div>
-          <div class="charter-header">
-            <span class="charter-tag vault">Evaluation Security</span>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Zero-Leakage</span>
-          </div>
-          <h3>The Sealed Evaluator Vault</h3>
-          <p>Ground truth, injection amplitudes, random seeds, and test labels are sealed outside the analyst environment. Evaluator truth never leaks through filenames, logs, tool outputs, or context windows.</p>
-        </div>
-        <div class="charter-links">
-          <a href="https://smsharma.io/" target="_blank" rel="noreferrer">Sid's Research ↗</a>
-          <a href="https://www.bu.edu/articles/2026/bu-joins-national-science-foundation-ai-institute/" target="_blank" rel="noreferrer">BU & IAIFI ↗</a>
-        </div>
-      </div>
-
-      <div class="charter-card">
-        <div>
-          <div class="charter-header">
-            <span class="charter-tag infra">Simulations</span>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Community Tested</span>
-          </div>
-          <h3>Community Infrastructure First</h3>
-          <p>SNANA provides proven forward simulation and analysis pipelines. This project does not depend on a differentiable rewrite or custom simulators. Black-box adversarial search begins within measured compute budgets.</p>
-        </div>
-        <div class="charter-links">
-          <a href="https://github.com/RickKessler/SNANA" target="_blank" rel="noreferrer">SNANA GitHub ↗</a>
-        </div>
-      </div>
-
-      <div class="charter-card">
-        <div>
-          <div class="charter-header">
-            <span class="charter-tag nsf">Scientific Boundaries</span>
-            <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">No Premature Claims</span>
-          </div>
-          <h3>The Benchmark Has Not Yet Been Run</h3>
-          <p>All timelines, methods, and staffing are proposed. No AI advantage, detection threshold, or DES validation result is claimed today. The interactive examples illustrate mathematical identifiability.</p>
-        </div>
-        <div class="charter-links">
-          <a href="https://www.nsf.gov/funding/opportunities/astro-core-astronomical-sciences-core-research" target="_blank" rel="noreferrer">NSF 26-522 Solicitation ↗</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="manifesto-box">
-      <div class="prelude">We are not asking: “Can AI do science?”</div>
-      <div class="climax">“What evidence would compel us to trust it?”</div>
-    </div>
-  </section>
+    </section>
+  </div>
 </main>
 
-<!-- Floating Presenter Notes Drawer -->
+<!-- Floating Presenter Notes Drawer (Active in Deck Mode) -->
 <div class="notes-drawer" id="notesDrawer">
   <div class="notes-label">PRESENTER TALK TRACK & TACTICAL GUIDANCE</div>
   <p id="notesContent"></p>
 </div>
 
-<!-- Bottom App Bar -->
-<footer class="bottombar">
+<!-- Bottom App Bar (Active in Deck Mode) -->
+<footer class="bottombar" id="deckFooter">
   <span class="bottombar-counter" id="slideCounter">01 / 08</span>
   <span class="bottombar-keys">Use <kbd>←</kbd> and <kbd>→</kbd> arrow keys to navigate slides</span>
   <div style="display:flex; gap:8px;">
