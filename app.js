@@ -1,4 +1,4 @@
-// SENTINEL: Dual-Mode Presentation & Interactive Research Laboratory Engine
+// SENTINEL: Dual-Mode Presentation & Cinematic A/V Experience Engine
 const scenes = [...document.querySelectorAll('.scene')];
 const navPill = document.getElementById('navPill');
 const slideCounter = document.getElementById('slideCounter');
@@ -8,11 +8,164 @@ const notesDrawer = document.getElementById('notesDrawer');
 const notesContent = document.getElementById('notesContent');
 const notesToggle = document.getElementById('notesToggle');
 const deckFooter = document.getElementById('deckFooter');
+const audioToggle = document.getElementById('audioToggle');
+const cinemaTourToggle = document.getElementById('cinemaTourToggle');
 
 let currentSlide = 0;
 let isLabMode = false;
+let isTourPlaying = false;
 
-// Mode Switching (Slide Deck vs. Interactive Lab)
+/* ============================================================
+   PILLAR 1: GENERATIVE WEB AUDIO ENGINE
+   ============================================================ */
+class SoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.droneOsc = null;
+    this.droneGain = null;
+    this.enabled = false;
+  }
+
+  init() {
+    if (this.ctx) return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioContext();
+
+      // Ambient Space Drone (Subtle 55Hz Low Drone with harmonics)
+      this.droneOsc = this.ctx.createOscillator();
+      this.droneOsc.type = 'sawtooth';
+      this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(110, this.ctx.currentTime);
+
+      this.droneGain = this.ctx.createGain();
+      this.droneGain.gain.setValueAtTime(0.035, this.ctx.currentTime);
+
+      this.droneOsc.connect(filter);
+      filter.connect(this.droneGain);
+      this.droneGain.connect(this.ctx.destination);
+      this.droneOsc.start();
+      this.enabled = true;
+    } catch (e) {
+      console.log('Web Audio not supported or blocked');
+    }
+  }
+
+  toggle() {
+    if (!this.ctx) {
+      this.init();
+    } else if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+      this.enabled = true;
+    } else if (this.ctx.state === 'running') {
+      this.ctx.suspend();
+      this.enabled = false;
+    }
+    return this.enabled;
+  }
+
+  playBlip(freq = 580, dur = 0.08) {
+    if (!this.ctx || this.ctx.state !== 'running') return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.4, this.ctx.currentTime + dur);
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + dur);
+    } catch (e) {}
+  }
+
+  playImpact() {
+    if (!this.ctx || this.ctx.state !== 'running') return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(130, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(32, this.ctx.currentTime + 0.6);
+      gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.6);
+    } catch (e) {}
+  }
+}
+
+const sound = new SoundEngine();
+
+audioToggle.onclick = () => {
+  const active = sound.toggle();
+  audioToggle.classList.toggle('active', active);
+  audioToggle.textContent = active ? '🔊 Sound: On' : '🔊 Sound: Off';
+  if (active) sound.playBlip(700);
+};
+
+/* ============================================================
+   PILLAR 2: PARALLAX COSMIC STARFIELD CANVAS
+   ============================================================ */
+const canvas = document.getElementById('cosmicCanvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+let mouseX = 0, mouseY = 0;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = [];
+  const numStars = Math.floor((canvas.width * canvas.height) / 8000);
+  for (let i = 0; i < numStars; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.8 + 0.2,
+      twinkle: Math.random() * 0.02 + 0.005,
+      depth: Math.random() * 0.8 + 0.2
+    });
+  }
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('mousemove', e => {
+  mouseX = (e.clientX - window.innerWidth / 2) * 0.03;
+  mouseY = (e.clientY - window.innerHeight / 2) * 0.03;
+});
+resizeCanvas();
+
+function animateStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.alpha += Math.sin(Date.now() * s.twinkle) * 0.01;
+    s.alpha = Math.max(0.15, Math.min(0.95, s.alpha));
+    
+    const posX = (s.x + mouseX * s.depth + canvas.width) % canvas.width;
+    const posY = (s.y + mouseY * s.depth + canvas.height) % canvas.height;
+
+    ctx.beginPath();
+    ctx.arc(posX, posY, s.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(180, 220, 255, ${s.alpha})`;
+    ctx.shadowBlur = s.radius > 1.2 ? 6 : 0;
+    ctx.shadowColor = '#00f2fe';
+    ctx.fill();
+  });
+  requestAnimationFrame(animateStars);
+}
+requestAnimationFrame(animateStars);
+
+/* ============================================================
+   MODE SWITCHING (Deck vs. Lab)
+   ============================================================ */
 const modeDeckBtn = document.getElementById('modeDeck');
 const modeLabBtn = document.getElementById('modeLab');
 
@@ -22,7 +175,10 @@ function switchMode(lab) {
   modeDeckBtn.classList.toggle('active', !isLabMode);
   modeLabBtn.classList.toggle('active', isLabMode);
   modeLabBtn.classList.toggle('amber-mode', isLabMode);
-  
+  sound.playBlip(550);
+
+  if (isTourPlaying) stopTour();
+
   if (isLabMode) {
     deckFooter.style.display = 'none';
     navPill.style.display = 'none';
@@ -43,14 +199,14 @@ modeLabBtn.onclick = () => switchMode(true);
 
 // Presenter Talk Tracks for each scene
 const talkTracks = [
-  /* 0 */ "“Imagine an AI team delivers an automated cosmological analysis claiming evidence for dynamical dark energy (w ≠ -1) at high significance. The residuals look completely clean. But what tells us it hasn't simply absorbed a 0.03 mag host dust drift into the dark energy parameter? Before we let AI accelerate cosmology, we need an adversarial evaluation environment.”",
-  /* 1 */ "“This is the Chameleon Systematic. When a physical perturbation projects in the exact same direction as the model's cosmological sensitivity, maximum-likelihood fitting absorbs it into the parameter. The residuals remain flat (χ²/dof = 1.02). No optimizer can detect what is mathematically degenerate without external priors. A trustworthy scientific agent must recognize non-identifiability and abstain.”",
-  /* 2 */ "“Here is the core technical architecture: a cryptographically sealed Evaluator Vault separated from the Analyst Sandbox by an air-gap firewall. SNANA simulation seeds, injection amplitudes, and true parameters never touch the LLM context window, filenames, or logs. Everything is unsealed only after frozen analyst submission.”",
-  /* 3 */ "“We enforce strict ablations. We don't assume that an agent swarm is smarter than a simple χ² test. Tier 1 is our baseline LightGBM scorecard. Notice Tier 4: agent teams risk the Persuasive Consensus Trap, where agents convince each other of an unphysical explanation. Every layer must prove its value per dollar of compute.”",
-  /* 4 */ "“Here is the pragmatic roadmap. Weeks 1–4 reproduce the baseline. Weeks 5–12 is the primary ask for Sid: a jointly scoped, blinded pilot with 1 injection family and 1 cosmological parameter, resulting in the first co-authored benchmark paper. We only scale to multi-probe after proving the metric.”",
-  /* 5 */ "“Why multi-probe matters: when two independent telescopes agree, cosmologists celebrate concordance. But if both probes share an unmodeled calibration or galactic extinction error, they agree for the wrong reason. Automated cross-probe tension diagnosis is a major open challenge with no current owner.”",
-  /* 6 */ "“The collaboration ask for Sid: combine Ayan’s DESC pipeline and SNANA ground-truth mastery with Sid’s leadership in simulation-based inference (SBI) and foundation reasoning evals. Target NSF 26-522 (Astronomical Sciences Core Research) with a science-first proposal focused on Rubin LSST readiness.”",
-  /* 7 */ "“Closing with our scientific boundaries: models like AION and AstroM3 are perception tools, not scientific arbiters. The benchmark has not yet been run. The entire pitch is built on unyielding scientific honesty: Not 'Can AI do science?', but 'What evidence would compel us to trust it?'”"
+  /* 0 */ "What if an AI team produces an elegant cosmological fit that claims discovery of dynamic dark energy? The residuals look pristine. But what tells us it hasn't simply absorbed a 0.03 mag host dust drift into the cosmological parameter? Before we let AI accelerate cosmology, we need an adversarial evaluation environment.",
+  /* 1 */ "This is the Chameleon Systematic. When a physical perturbation projects in the exact same direction as the cosmological sensitivity, maximum-likelihood fitting absorbs it into the parameter. The residuals remain flat (χ²/dof = 1.02). No optimizer can detect what is mathematically degenerate without external priors.",
+  /* 2 */ "Here is our core technical architecture: a cryptographically sealed Evaluator Vault separated from the Analyst Sandbox by an air-gap firewall. SNANA simulation seeds, injection amplitudes, and true parameters never touch the LLM context window. Everything is unsealed only after frozen submission.",
+  /* 3 */ "We enforce strict ablations. We do not assume that an agent swarm is smarter than a simple χ² test. Tier 1 is our baseline LightGBM scorecard. Tier 4 tests agent teams against the Persuasive Consensus Trap. Every layer must prove its value per dollar of compute.",
+  /* 4 */ "Here is our pragmatic roadmap. Weeks 1 to 4 reproduce the baseline. Weeks 5 to 12 is the primary ask for Sid: a jointly scoped, blinded pilot with 1 injection family and 1 cosmological parameter, resulting in the first co-authored benchmark paper.",
+  /* 5 */ "Why multi-probe matters: when two independent telescopes agree, cosmologists celebrate concordance. But if both probes share an unmodeled calibration or galactic extinction error, they agree for the wrong reason. Automated cross-probe tension diagnosis is a major open challenge.",
+  /* 6 */ "The collaboration ask for Sid: combine Ayan’s DESC pipeline and SNANA ground-truth mastery with Sid’s leadership in simulation-based inference and foundation reasoning evals. Target NSF 26-522 Core Research with a science-first proposal focused on Rubin LSST readiness.",
+  /* 7 */ "Closing with our scientific boundaries: models like AION and AstroM3 are perception tools, not scientific arbiters. The benchmark has not yet been run. The entire pitch is built on unyielding scientific honesty: Not 'Can AI do science?', but 'What evidence would compel us to trust it?'"
 ];
 
 // Initialize Nav Pill
@@ -76,6 +232,8 @@ function setSlide(index) {
   notesContent.textContent = talkTracks[currentSlide] || '';
   history.replaceState(null, '', '#' + currentSlide);
   window.scrollTo(0, 0);
+
+  sound.playBlip(620);
 }
 
 // Navigation Listeners
@@ -99,6 +257,9 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     setSlide(currentSlide - 1);
   }
+  if (e.key === 'Escape' && isTourPlaying) {
+    stopTour();
+  }
 });
 
 // Presenter Notes Toggle
@@ -108,6 +269,7 @@ notesToggle.onclick = () => {
   notesToggle.setAttribute('aria-pressed', active);
   notesToggle.style.borderColor = active ? 'var(--amber)' : 'var(--border-subtle)';
   notesToggle.style.color = active ? 'var(--amber)' : 'var(--text-main)';
+  sound.playBlip(480);
   if (!isLabMode) {
     notesDrawer.style.display = active ? 'block' : 'none';
   }
@@ -122,6 +284,107 @@ document.getElementById('fullscreenToggle').onclick = async () => {
     console.log('Fullscreen toggled via browser');
   }
 };
+
+/* ============================================================
+   PILLAR 3: AUTOPLAY CINEMATIC STORY TOUR & NARRATION
+   ============================================================ */
+let tourUtterance = null;
+
+function startTour() {
+  isTourPlaying = true;
+  cinemaTourToggle.classList.add('playing');
+  cinemaTourToggle.textContent = '⏸ Pause Tour';
+  if (!sound.enabled) sound.toggle();
+
+  playTourSlide(currentSlide);
+}
+
+function stopTour() {
+  isTourPlaying = false;
+  cinemaTourToggle.classList.remove('playing');
+  cinemaTourToggle.textContent = '🎬 Cinematic Tour';
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+cinemaTourToggle.onclick = () => {
+  if (isTourPlaying) stopTour();
+  else startTour();
+};
+
+function playTourSlide(index) {
+  if (!isTourPlaying) return;
+  setSlide(index);
+
+  // Trigger contextual slide animations during the tour
+  if (index === 0) {
+    setTimeout(() => {
+      if (!isTourPlaying) return;
+      heroBtnTru.click();
+      sound.playImpact();
+    }, 4500);
+  } else if (index === 1) {
+    driftRange.value = 0.5;
+    renderHubble();
+    let step = 0;
+    const interval = setInterval(() => {
+      if (!isTourPlaying) { clearInterval(interval); return; }
+      step++;
+      driftRange.value = (0.5 + step * 0.25).toFixed(1);
+      renderHubble();
+      if (step >= 8) {
+        clearInterval(interval);
+        setTimeout(() => {
+          if (!isTourPlaying) return;
+          btnRevealTruth.click();
+          sound.playImpact();
+        }, 1200);
+      }
+    }, 350);
+  } else if (index === 3) {
+    setTimeout(() => { if (isTourPlaying) document.querySelector('[data-tier="1"]').click(); }, 3000);
+    setTimeout(() => { if (isTourPlaying) document.querySelector('[data-tier="2"]').click(); }, 6000);
+    setTimeout(() => { if (isTourPlaying) document.querySelector('[data-tier="3"]').click(); }, 9000);
+  }
+
+  // Speak the plain-English explanation
+  const text = talkTracks[index];
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    tourUtterance = new SpeechSynthesisUtterance(text);
+    tourUtterance.rate = 1.02;
+    tourUtterance.pitch = 1.0;
+
+    // Pick best English voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const naturalVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha')));
+    if (naturalVoice) tourUtterance.voice = naturalVoice;
+
+    tourUtterance.onend = () => {
+      if (!isTourPlaying) return;
+      setTimeout(() => {
+        if (!isTourPlaying) return;
+        if (currentSlide < scenes.length - 1) {
+          playTourSlide(currentSlide + 1);
+        } else {
+          stopTour();
+        }
+      }, 1800);
+    };
+
+    window.speechSynthesis.speak(tourUtterance);
+  } else {
+    // Fallback timer if speech synthesis is not supported
+    setTimeout(() => {
+      if (isTourPlaying && currentSlide < scenes.length - 1) {
+        playTourSlide(currentSlide + 1);
+      } else {
+        stopTour();
+      }
+    }, 12000);
+  }
+}
 
 /* ============================================================
    SCENE 0: Hero Hologram (w0, wa Parameter Likelihood)
@@ -192,6 +455,7 @@ if (heroBtnObs && heroBtnTru) {
     document.getElementById('heroStatusText').style.display = 'block';
     document.getElementById('heroWarningText').style.display = 'none';
     renderHeroHologram();
+    sound.playBlip(500);
   };
   heroBtnTru.onclick = () => {
     heroRevealTruth = true;
@@ -200,6 +464,7 @@ if (heroBtnObs && heroBtnTru) {
     document.getElementById('heroStatusText').style.display = 'none';
     document.getElementById('heroWarningText').style.display = 'block';
     renderHeroHologram();
+    sound.playImpact();
   };
 }
 renderHeroHologram();
@@ -307,7 +572,10 @@ function renderHubble() {
 }
 
 if (driftRange) {
-  driftRange.addEventListener('input', renderHubble);
+  driftRange.addEventListener('input', () => {
+    renderHubble();
+    sound.playBlip(400 + Number(driftRange.value) * 150, 0.03);
+  });
 }
 
 if (btnRevealTruth) {
@@ -320,6 +588,8 @@ if (btnRevealTruth) {
       ? 'The fit passed with flying colors (χ²/dof = 1.02), yet the inferred universe is severely corrupted. Mathematical optimization cannot detect what is collinear with the model response.'
       : 'The analyst sees only the data and residuals. The evaluator holds the sealed injection manifest.';
     renderHubble();
+    if (hubbleRevealed) sound.playImpact();
+    else sound.playBlip(500);
   };
 }
 renderHubble();
@@ -337,6 +607,7 @@ renderHubble();
       el.style.borderColor = 'var(--cyan)';
       el.style.color = 'var(--cyan)';
       renderHubble();
+      sound.playBlip(680);
     };
   }
 });
@@ -347,6 +618,7 @@ renderHubble();
 const btnSimulateAttack = document.getElementById('btnSimulateAttack');
 if (btnSimulateAttack) {
   btnSimulateAttack.onclick = () => {
+    sound.playImpact();
     alert(
       "Simulated Adversarial Injection Flow:\n\n" +
       "1. [Evaluator Vault]: Injected +0.03 mag chromatic filter drift into 1,000 synthetic SN light curves.\n" +
@@ -434,6 +706,7 @@ document.querySelectorAll('[data-tier]').forEach(btn => {
 
     document.getElementById('scoreFalseAlarm').textContent = t.falseAlarm;
     document.getElementById('scoreCost').textContent = t.cost;
+    sound.playBlip(520 + idx * 80);
   };
 });
 
@@ -511,6 +784,7 @@ if (roadmapTimeline) {
       s.classList.toggle('active', Number(s.dataset.phase) === i)
     );
     document.getElementById('roadmapProgress').style.width = [5, 20, 45, 75, 100][i] + '%';
+    sound.playBlip(500 + i * 60);
   }
 
   roadmapTimeline.querySelectorAll('.timeline-step').forEach(s => {
@@ -561,6 +835,7 @@ document.querySelectorAll('.probe-btn').forEach(btn => {
     document.getElementById('probeTitle').textContent = p.title;
     document.getElementById('probeText').textContent = p.text;
     document.getElementById('probeCaution').textContent = p.caution;
+    sound.playBlip(600 + idx * 50);
   };
 });
 
@@ -581,6 +856,7 @@ document.querySelectorAll('.lab-inj-btn').forEach(btn => {
     btn.style.borderColor = 'var(--cyan)';
     labSelectedInj = btn.dataset.inj;
     renderLabSimulation();
+    sound.playBlip(650);
   };
 });
 
@@ -635,7 +911,6 @@ function renderLabSimulation() {
     <text x="480" y="90" fill="#00f2fe" font-size="11" font-family="var(--font-mono)">Inferred: w₀ = ${(-1.00 + amp * 3.8).toFixed(2)}</text>
   `;
 
-  // Update readouts
   const inferredW = (-1.00 + amp * 3.8).toFixed(2);
   const biasSigma = (amp * 48).toFixed(1);
   document.getElementById('labW0').textContent = inferredW;
@@ -647,8 +922,8 @@ function renderFailureHeatmap() {
   const svg = document.getElementById('heatmapSvg');
   if (!svg) return;
 
-  const cols = 12; // Redshift bins
-  const rows = 5;  // Systematic amplitudes
+  const cols = 12;
+  const rows = 5;
 
   let cells = '';
   for (let r = 0; r < rows; r++) {
@@ -660,16 +935,15 @@ function renderFailureHeatmap() {
       const zVal = (0.1 + c * 0.1).toFixed(1);
       const x = 90 + c * 64;
 
-      // Calculate hazard level: high bias + low detection power = invisible hazard (coral)
       const hazardScore = Math.min(1.0, (r * 0.25) * (1 - c * 0.05));
-      let fill = 'rgba(5, 255, 161, 0.2)'; // safe
+      let fill = 'rgba(5, 255, 161, 0.2)';
       let stroke = 'rgba(5, 255, 161, 0.4)';
 
       if (r >= 2 && c <= 7) {
-        fill = 'rgba(255, 42, 109, 0.55)'; // invisible hazard zone
+        fill = 'rgba(255, 42, 109, 0.55)';
         stroke = 'rgba(255, 42, 109, 0.8)';
       } else if (r >= 3) {
-        fill = 'rgba(255, 158, 0, 0.4)'; // detected but high bias
+        fill = 'rgba(255, 158, 0, 0.4)';
         stroke = 'rgba(255, 158, 0, 0.7)';
       }
 
