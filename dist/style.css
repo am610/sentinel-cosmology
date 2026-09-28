@@ -2,16 +2,16 @@
 
 :root {
   /* Color System: Deep Space Nebula & Laser Accents */
-  --bg-deep: #060913;
-  --bg-surface: rgba(13, 19, 38, 0.75);
-  --bg-surface-elevated: rgba(18, 27, 54, 0.85);
+  --bg-deep: #050811;
+  --bg-surface: rgba(11, 17, 36, 0.78);
+  --bg-surface-elevated: rgba(18, 27, 54, 0.88);
   --bg-card: #0c142b;
   --bg-card-opaque: #091024;
   
-  --border-subtle: rgba(70, 95, 140, 0.25);
-  --border-glow: rgba(0, 242, 254, 0.35);
-  --border-amber-glow: rgba(255, 158, 0, 0.35);
-  --border-coral-glow: rgba(255, 42, 109, 0.35);
+  --border-subtle: rgba(70, 95, 140, 0.28);
+  --border-glow: rgba(0, 242, 254, 0.4);
+  --border-amber-glow: rgba(255, 158, 0, 0.4);
+  --border-coral-glow: rgba(255, 42, 109, 0.4);
 
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
@@ -20,22 +20,22 @@
   /* Radiant Laser Accents */
   --cyan: #00f2fe;
   --cyan-bright: #4facfe;
-  --cyan-glow: rgba(0, 242, 254, 0.3);
+  --cyan-glow: rgba(0, 242, 254, 0.35);
 
   --amber: #ff9e00;
   --amber-bright: #ffd166;
-  --amber-glow: rgba(255, 158, 0, 0.3);
+  --amber-glow: rgba(255, 158, 0, 0.35);
 
   --coral: #ff2a6d;
   --coral-bright: #ff5e8c;
-  --coral-glow: rgba(255, 42, 109, 0.3);
+  --coral-glow: rgba(255, 42, 109, 0.35);
 
   --violet: #8b5cf6;
   --violet-bright: #a78bfa;
-  --violet-glow: rgba(139, 92, 246, 0.3);
+  --violet-glow: rgba(139, 92, 246, 0.35);
 
   --emerald: #05ffa1;
-  --emerald-glow: rgba(5, 255, 161, 0.3);
+  --emerald-glow: rgba(5, 255, 161, 0.35);
 
   /* Typography */
   --font-display: 'Space Grotesk', sans-serif;
@@ -51,20 +51,24 @@ html, body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-deep);
-  background-image: 
-    radial-gradient(circle at 10% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.09) 0%, transparent 50%),
-    radial-gradient(circle at 50% 40%, rgba(255, 158, 0, 0.05) 0%, transparent 60%),
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
-  background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Background Cosmic Canvas */
+#cosmicCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.85;
 }
 
 /* Scrollbar */
@@ -91,8 +95,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(6, 9, 19, 0.85);
-  backdrop-filter: blur(18px);
+  background: rgba(5, 8, 17, 0.88);
+  backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -107,14 +111,14 @@ html, body {
 }
 
 .brand-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   background: linear-gradient(135deg, var(--cyan), var(--violet));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
   color: #000;
   box-shadow: 0 0 16px var(--cyan-glow);
@@ -145,7 +149,7 @@ html, body {
 .topbar-center {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* Mode Switcher Toggle */
@@ -224,7 +228,7 @@ html, body {
 }
 
 .nav-pill button.active {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.18), rgba(79, 172, 254, 0.12));
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.12));
   border-color: var(--cyan);
   color: #fff;
   box-shadow: 0 0 14px var(--cyan-glow);
@@ -237,7 +241,49 @@ html, body {
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+/* Audio & Tour Buttons */
+.btn-cinema {
+  background: linear-gradient(135deg, rgba(255, 42, 109, 0.2), rgba(139, 92, 246, 0.2));
+  border-color: var(--border-coral-glow);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 13px;
+}
+
+.btn-cinema:hover {
+  background: linear-gradient(135deg, var(--coral), var(--violet));
+  box-shadow: 0 0 16px var(--coral-glow);
+  color: #fff;
+}
+
+.btn-cinema.playing {
+  background: var(--coral);
+  box-shadow: 0 0 20px var(--coral-glow);
+  animation: pulseCinema 1.5s infinite;
+}
+
+@keyframes pulseCinema {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.btn-audio {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.btn-audio.active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(0, 242, 254, 0.1);
+  box-shadow: 0 0 10px var(--cyan-glow);
 }
 
 /* Interactive Buttons */
@@ -332,7 +378,7 @@ button:focus-visible {
 main {
   max-width: 1520px;
   margin: 0 auto;
-  padding: 40px 4vw 120px;
+  padding: 36px 4vw 130px;
 }
 
 .scene {
@@ -345,7 +391,7 @@ main {
 }
 
 @keyframes sceneAppear {
-  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+  from { opacity: 0; transform: translateY(12px) scale(0.995); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -455,14 +501,14 @@ h4 {
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 28px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
   position: relative;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .panel-header {
@@ -1206,20 +1252,13 @@ body.mode-lab #labContainer {
   gap: 20px;
 }
 
-.heatmap-box {
-  background: rgba(6, 9, 19, 0.7);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 20px;
-}
-
 /* Presenter Notes Drawer */
 .notes-drawer {
   position: fixed;
   bottom: 74px;
   left: 4vw;
   right: 4vw;
-  background: rgba(12, 18, 38, 0.95);
+  background: rgba(12, 18, 38, 0.96);
   border: 1px solid var(--border-amber-glow);
   border-radius: 14px;
   padding: 20px 28px;
@@ -1262,7 +1301,7 @@ body.show-notes .notes-drawer {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(6, 9, 19, 0.88);
+  background: rgba(5, 8, 17, 0.9);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -1357,7 +1396,7 @@ body.show-notes .notes-drawer {
     background: #fff !important;
     color: #000 !important;
   }
-  .topbar, .bottombar, .notes-drawer, button, input {
+  #cosmicCanvas, .topbar, .bottombar, .notes-drawer, button, input {
     display: none !important;
   }
   .scene {
