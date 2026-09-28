@@ -142,10 +142,50 @@ html, body {
   font-weight: 600;
 }
 
-.topbar-actions {
+.topbar-center {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+
+/* Mode Switcher Toggle */
+.mode-switcher {
+  display: flex;
+  background: rgba(12, 20, 43, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 3px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.mode-switcher button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.mode-switcher button.active {
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-bright));
+  color: #020c16;
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px var(--cyan-glow);
+}
+
+.mode-switcher button.active.amber-mode {
+  background: linear-gradient(135deg, var(--amber), var(--amber-bright));
+  color: #170d00;
+  border-color: var(--amber);
+  box-shadow: 0 0 14px var(--amber-glow);
 }
 
 /* Floating Chapter Navigation Pill */
@@ -192,6 +232,12 @@ html, body {
 
 .nav-pill button.active span {
   color: var(--cyan);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Interactive Buttons */
@@ -1110,6 +1156,63 @@ input[type=range] {
   color: #fff;
 }
 
+/* ============================================================
+   LABORATORY / EXPLORATORY MODE STYLES
+   ============================================================ */
+#labContainer {
+  display: none;
+  animation: sceneAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.mode-lab #deckContainer {
+  display: none;
+}
+
+body.mode-lab #labContainer {
+  display: block;
+}
+
+.lab-hero {
+  margin-bottom: 40px;
+  padding: 36px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(13, 23, 46, 0.95), rgba(8, 15, 34, 0.9));
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.lab-section {
+  margin-bottom: 48px;
+}
+
+.lab-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.lab-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.lab-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.heatmap-box {
+  background: rgba(6, 9, 19, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+
 /* Presenter Notes Drawer */
 .notes-drawer {
   position: fixed;
@@ -1191,7 +1294,7 @@ body.show-notes .notes-drawer {
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .hero-split, .experiment-layout, .arena-detail, .roadmap-display, .horizon-split, .partner-split {
+  .hero-split, .experiment-layout, .arena-detail, .roadmap-display, .horizon-split, .partner-split, .lab-grid-2, .lab-grid-3 {
     grid-template-columns: 1fr;
     gap: 32px;
   }
@@ -1206,6 +1309,23 @@ body.show-notes .notes-drawer {
   }
   .roadmap-timeline .timeline-step {
     min-width: 140px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    height: auto;
+    padding: 12px 4vw;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .topbar-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .nav-pill {
+    display: none;
   }
 }
 
@@ -1229,9 +1349,6 @@ body.show-notes .notes-drawer {
   }
   .profile-pair {
     grid-template-columns: 1fr;
-  }
-  .nav-pill {
-    display: none;
   }
 }
 

@@ -1,4 +1,4 @@
-// SENTINEL: Next-Generation Scientific Presentation Engine
+// SENTINEL: Dual-Mode Presentation & Interactive Research Laboratory Engine
 const scenes = [...document.querySelectorAll('.scene')];
 const navPill = document.getElementById('navPill');
 const slideCounter = document.getElementById('slideCounter');
@@ -7,8 +7,39 @@ const btnNext = document.getElementById('btnNext');
 const notesDrawer = document.getElementById('notesDrawer');
 const notesContent = document.getElementById('notesContent');
 const notesToggle = document.getElementById('notesToggle');
+const deckFooter = document.getElementById('deckFooter');
 
 let currentSlide = 0;
+let isLabMode = false;
+
+// Mode Switching (Slide Deck vs. Interactive Lab)
+const modeDeckBtn = document.getElementById('modeDeck');
+const modeLabBtn = document.getElementById('modeLab');
+
+function switchMode(lab) {
+  isLabMode = lab;
+  document.body.classList.toggle('mode-lab', isLabMode);
+  modeDeckBtn.classList.toggle('active', !isLabMode);
+  modeLabBtn.classList.toggle('active', isLabMode);
+  modeLabBtn.classList.toggle('amber-mode', isLabMode);
+  
+  if (isLabMode) {
+    deckFooter.style.display = 'none';
+    navPill.style.display = 'none';
+    notesDrawer.style.display = 'none';
+    renderLabSimulation();
+    renderFailureHeatmap();
+  } else {
+    deckFooter.style.display = 'flex';
+    navPill.style.display = 'flex';
+    if (document.body.classList.contains('show-notes')) {
+      notesDrawer.style.display = 'block';
+    }
+  }
+}
+
+modeDeckBtn.onclick = () => switchMode(false);
+modeLabBtn.onclick = () => switchMode(true);
 
 // Presenter Talk Tracks for each scene
 const talkTracks = [
@@ -59,7 +90,7 @@ document.querySelectorAll('[data-go]').forEach(b => {
 });
 
 document.addEventListener('keydown', e => {
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+  if (isLabMode || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
   if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
     e.preventDefault();
     setSlide(currentSlide + 1);
@@ -77,6 +108,9 @@ notesToggle.onclick = () => {
   notesToggle.setAttribute('aria-pressed', active);
   notesToggle.style.borderColor = active ? 'var(--amber)' : 'var(--border-subtle)';
   notesToggle.style.color = active ? 'var(--amber)' : 'var(--text-main)';
+  if (!isLabMode) {
+    notesDrawer.style.display = active ? 'block' : 'none';
+  }
 };
 
 // Fullscreen Toggle
@@ -205,7 +239,6 @@ function renderHubble() {
     grid += `<text x="${x}" y="368" fill="#64748b" font-size="11" text-anchor="middle" font-family="var(--font-mono)">z=${z.toFixed(1)}</text>`;
   }
 
-  // Baseline cosmological curves
   let trueCurve = '';
   let inferredCurve = '';
   for (let z = 0.05; z <= 1.21; z += 0.02) {
@@ -258,7 +291,6 @@ function renderHubble() {
 
   svg.innerHTML = content;
 
-  // Update statistics cards
   const inferredW = (-1.00 + d * 0.08).toFixed(2);
   document.getElementById('statEstimate').textContent = `w = ${inferredW}`;
   document.getElementById('statBias').textContent = hubbleRevealed ? `+${(d * 0.08).toFixed(2)} (Biased)` : 'Sealed';
@@ -532,6 +564,133 @@ document.querySelectorAll('.probe-btn').forEach(btn => {
   };
 });
 
-// Initialize to URL hash route or 0
+/* ============================================================
+   LABORATORY INTERACTIVE MODULES
+   ============================================================ */
+let labSelectedInj = 'zero';
+const labAmpSlider = document.getElementById('labAmplitude');
+const labAmpOutput = document.getElementById('labAmpOutput');
+
+document.querySelectorAll('.lab-inj-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.lab-inj-btn').forEach(b => {
+      b.classList.remove('active');
+      b.style.borderColor = 'var(--border-subtle)';
+    });
+    btn.classList.add('active');
+    btn.style.borderColor = 'var(--cyan)';
+    labSelectedInj = btn.dataset.inj;
+    renderLabSimulation();
+  };
+});
+
+if (labAmpSlider) {
+  labAmpSlider.addEventListener('input', () => {
+    labAmpOutput.textContent = `${Number(labAmpSlider.value).toFixed(3)} mag`;
+    renderLabSimulation();
+  });
+}
+
+function renderLabSimulation() {
+  const svg = document.getElementById('labSimPlot');
+  if (!svg) return;
+
+  const amp = Number(labAmpSlider ? labAmpSlider.value : 0.03);
+  const px = z => 60 + (z / 1.2) * 560;
+  const py = mu => 180 - ((mu - 36) / 10) * 140;
+
+  let points = '';
+  for (let i = 0; i < 28; i++) {
+    const z = 0.05 + (i / 27) * 1.05;
+    const baseMu = 43.1 + 5 * Math.log10(z) + 1.1 * z;
+    const shift = (amp * 2.5) * (z / 1.2);
+    const noise = (Math.sin(i * 9.1) * 0.1);
+    const x = px(z);
+    const y = py(baseMu + shift + noise);
+    points += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#00f2fe" opacity="0.8"/>`;
+  }
+
+  let trueLine = '';
+  let infLine = '';
+  for (let z = 0.05; z <= 1.2; z += 0.04) {
+    const baseMu = 43.1 + 5 * Math.log10(z) + 1.1 * z;
+    const shift = (amp * 2.5) * (z / 1.2);
+    trueLine += (trueLine ? 'L' : 'M') + px(z).toFixed(1) + ' ' + py(baseMu).toFixed(1);
+    infLine += (infLine ? 'L' : 'M') + px(z).toFixed(1) + ' ' + py(baseMu + shift).toFixed(1);
+  }
+
+  svg.innerHTML = `
+    <!-- Axes -->
+    <line x1="60" y1="20" x2="60" y2="280" stroke="#16263f"/>
+    <line x1="60" y1="280" x2="620" y2="280" stroke="#16263f"/>
+    <text x="340" y="310" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="var(--font-mono)">Supernova Redshift z</text>
+    <text x="25" y="150" fill="#94a3b8" font-size="11" text-anchor="middle" transform="rotate(-90,25,150)" font-family="var(--font-mono)">Distance Modulus μ</text>
+
+    <!-- Curves -->
+    <path d="${trueLine}" fill="none" stroke="#ff9e00" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="${infLine}" fill="none" stroke="#00f2fe" stroke-width="2.5"/>
+    ${points}
+
+    <text x="480" y="70" fill="#ff9e00" font-size="11" font-family="var(--font-mono)">Truth: ΛCDM</text>
+    <text x="480" y="90" fill="#00f2fe" font-size="11" font-family="var(--font-mono)">Inferred: w₀ = ${(-1.00 + amp * 3.8).toFixed(2)}</text>
+  `;
+
+  // Update readouts
+  const inferredW = (-1.00 + amp * 3.8).toFixed(2);
+  const biasSigma = (amp * 48).toFixed(1);
+  document.getElementById('labW0').textContent = inferredW;
+  document.getElementById('labBias').textContent = `+${biasSigma}σ`;
+  document.getElementById('labChi2').textContent = (1.015 + (amp * 0.1)).toFixed(3);
+}
+
+function renderFailureHeatmap() {
+  const svg = document.getElementById('heatmapSvg');
+  if (!svg) return;
+
+  const cols = 12; // Redshift bins
+  const rows = 5;  // Systematic amplitudes
+
+  let cells = '';
+  for (let r = 0; r < rows; r++) {
+    const ampVal = (0.01 + r * 0.015).toFixed(3);
+    const y = 30 + r * 36;
+    cells += `<text x="70" y="${y + 22}" fill="#94a3b8" font-size="10" text-anchor="end" font-family="var(--font-mono)">${ampVal}m</text>`;
+
+    for (let c = 0; c < cols; c++) {
+      const zVal = (0.1 + c * 0.1).toFixed(1);
+      const x = 90 + c * 64;
+
+      // Calculate hazard level: high bias + low detection power = invisible hazard (coral)
+      const hazardScore = Math.min(1.0, (r * 0.25) * (1 - c * 0.05));
+      let fill = 'rgba(5, 255, 161, 0.2)'; // safe
+      let stroke = 'rgba(5, 255, 161, 0.4)';
+
+      if (r >= 2 && c <= 7) {
+        fill = 'rgba(255, 42, 109, 0.55)'; // invisible hazard zone
+        stroke = 'rgba(255, 42, 109, 0.8)';
+      } else if (r >= 3) {
+        fill = 'rgba(255, 158, 0, 0.4)'; // detected but high bias
+        stroke = 'rgba(255, 158, 0, 0.7)';
+      }
+
+      cells += `
+        <rect x="${x}" y="${y}" width="58" height="30" rx="4" fill="${fill}" stroke="${stroke}"/>
+        <text x="${x + 29}" y="${y + 19}" fill="#fff" font-size="9" text-anchor="middle" font-family="var(--font-mono)">${(hazardScore * 100).toFixed(0)}%</text>
+      `;
+
+      if (r === rows - 1) {
+        cells += `<text x="${x + 29}" y="${y + 48}" fill="#94a3b8" font-size="10" text-anchor="middle" font-family="var(--font-mono)">z=${zVal}</text>`;
+      }
+    }
+  }
+
+  svg.innerHTML = `
+    <text x="30" y="18" fill="#94a3b8" font-size="10" font-weight="700" font-family="var(--font-mono)">AMPLITUDE</text>
+    <text x="500" y="235" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle" font-family="var(--font-mono)">REDSHIFT BIN</text>
+    ${cells}
+  `;
+}
+
+// Initial Hash Route
 const initialSlide = Number(location.hash.slice(1)) || 0;
 setSlide(initialSlide);
