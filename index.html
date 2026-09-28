@@ -29,8 +29,8 @@
 
   <div class="topbar-actions">
     <button id="cinemaTourToggle" class="btn-sm btn-cinema">🎬 Cinematic Tour</button>
-    <button id="audioToggle" class="btn-sm btn-audio">🔊 Sound: Off</button>
-    <button id="notesToggle" aria-pressed="false" class="btn-sm">Presenter Notes</button>
+    <button id="audioToggle" class="btn-sm btn-audio" title="Atmospheric synth drone & tactile sound effects (No voice)">🎧 Ambient Synth: Off</button>
+    <button id="notesToggle" aria-pressed="false" class="btn-sm">🎙️ Speaker Script</button>
     <button id="fullscreenToggle" class="btn-sm">Full Screen</button>
     <button onclick="window.print()" class="btn-sm">Export Brief</button>
   </div>
@@ -688,10 +688,50 @@
   </div>
 </main>
 
-<!-- Floating Presenter Notes Drawer (Active in Deck Mode) -->
+<!-- Cinematic Autoplay Subtitle HUD (Zero robotic voice, pure glowing typography & dynamic data triggers) -->
+<div class="cinema-hud" id="cinemaHUD" style="display: none;">
+  <div class="cinema-hud-progress">
+    <div class="cinema-hud-bar" id="cinemaProgressBar"></div>
+  </div>
+  <div class="cinema-hud-body">
+    <div class="cinema-hud-header">
+      <div class="cinema-hud-tag">
+        <span class="live-dot"></span>
+        <span id="cinemaTag">CINEMATIC WALKTHROUGH · CHAPTER 01 / 08</span>
+      </div>
+      <div class="cinema-hud-controls">
+        <button id="cinemaPauseBtn" class="btn-cinema-ctrl" title="Pause or Resume playback">⏸ Pause</button>
+        <button id="cinemaNextBtn" class="btn-cinema-ctrl" title="Skip to next scene">⏭ Skip</button>
+        <button id="cinemaExitBtn" class="btn-cinema-ctrl" title="Exit cinematic tour">✕ Close</button>
+      </div>
+    </div>
+    <div class="cinema-hud-text" id="cinemaText"></div>
+  </div>
+</div>
+
+<!-- Floating Presenter Teleprompter Drawer (Active in Deck Mode) -->
 <div class="notes-drawer" id="notesDrawer">
-  <div class="notes-label">PRESENTER TALK TRACK & TACTICAL GUIDANCE</div>
-  <p id="notesContent"></p>
+  <div class="notes-header">
+    <div class="notes-label">🎙️ SPEAKER TELEPROMPTER & MEETING DEFENSE</div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button id="copyScriptBtn" class="btn-xs">📋 Copy Script</button>
+      <button id="closeNotesBtn" class="btn-xs" style="color:var(--text-muted); cursor:pointer;">✕</button>
+    </div>
+  </div>
+  <div class="notes-grid">
+    <div class="notes-col notes-col-talk">
+      <div class="notes-subhead">🗣️ LIVE TALK TRACK (What to say out loud)</div>
+      <p id="notesContent"></p>
+    </div>
+    <div class="notes-col">
+      <div class="notes-subhead">🎯 STRATEGIC OBJECTIVE</div>
+      <p id="notesObjective"></p>
+    </div>
+    <div class="notes-col">
+      <div class="notes-subhead">🛡️ SKEPTIC Q&A / DEFENSE</div>
+      <p id="notesDefense"></p>
+    </div>
+  </div>
 </div>
 
 <!-- Bottom App Bar (Active in Deck Mode) -->
