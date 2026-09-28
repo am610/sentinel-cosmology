@@ -6,14 +6,30 @@ const btnPrev = document.getElementById('btnPrev');
 const btnNext = document.getElementById('btnNext');
 const notesDrawer = document.getElementById('notesDrawer');
 const notesContent = document.getElementById('notesContent');
+const notesObjective = document.getElementById('notesObjective');
+const notesDefense = document.getElementById('notesDefense');
+const copyScriptBtn = document.getElementById('copyScriptBtn');
+const closeNotesBtn = document.getElementById('closeNotesBtn');
 const notesToggle = document.getElementById('notesToggle');
 const deckFooter = document.getElementById('deckFooter');
 const audioToggle = document.getElementById('audioToggle');
 const cinemaTourToggle = document.getElementById('cinemaTourToggle');
 
+const cinemaHUD = document.getElementById('cinemaHUD');
+const cinemaProgressBar = document.getElementById('cinemaProgressBar');
+const cinemaTag = document.getElementById('cinemaTag');
+const cinemaText = document.getElementById('cinemaText');
+const cinemaPauseBtn = document.getElementById('cinemaPauseBtn');
+const cinemaNextBtn = document.getElementById('cinemaNextBtn');
+const cinemaExitBtn = document.getElementById('cinemaExitBtn');
+
 let currentSlide = 0;
 let isLabMode = false;
 let isTourPlaying = false;
+let isTourPaused = false;
+let tourProgressInterval = null;
+let tourElapsedMs = 0;
+const SLIDE_DURATION_MS = 11000;
 
 /* ============================================================
    PILLAR 1: GENERATIVE WEB AUDIO ENGINE
@@ -107,7 +123,7 @@ const sound = new SoundEngine();
 audioToggle.onclick = () => {
   const active = sound.toggle();
   audioToggle.classList.toggle('active', active);
-  audioToggle.textContent = active ? '🔊 Sound: On' : '🔊 Sound: Off';
+  audioToggle.textContent = active ? '🎧 Ambient Synth: On' : '🎧 Ambient Synth: Off';
   if (active) sound.playBlip(700);
 };
 
@@ -197,22 +213,111 @@ function switchMode(lab) {
 modeDeckBtn.onclick = () => switchMode(false);
 modeLabBtn.onclick = () => switchMode(true);
 
-// Presenter Talk Tracks for each scene
-const talkTracks = [
-  /* 0 */ "What if an AI team produces an elegant cosmological fit that claims discovery of dynamic dark energy? The residuals look pristine. But what tells us it hasn't simply absorbed a 0.03 mag host dust drift into the cosmological parameter? Before we let AI accelerate cosmology, we need an adversarial evaluation environment.",
-  /* 1 */ "This is the Chameleon Systematic. When a physical perturbation projects in the exact same direction as the cosmological sensitivity, maximum-likelihood fitting absorbs it into the parameter. The residuals remain flat (χ²/dof = 1.02). No optimizer can detect what is mathematically degenerate without external priors.",
-  /* 2 */ "Here is our core technical architecture: a cryptographically sealed Evaluator Vault separated from the Analyst Sandbox by an air-gap firewall. SNANA simulation seeds, injection amplitudes, and true parameters never touch the LLM context window. Everything is unsealed only after frozen submission.",
-  /* 3 */ "We enforce strict ablations. We do not assume that an agent swarm is smarter than a simple χ² test. Tier 1 is our baseline LightGBM scorecard. Tier 4 tests agent teams against the Persuasive Consensus Trap. Every layer must prove its value per dollar of compute.",
-  /* 4 */ "Here is our pragmatic roadmap. Weeks 1 to 4 reproduce the baseline. Weeks 5 to 12 is the primary ask for Sid: a jointly scoped, blinded pilot with 1 injection family and 1 cosmological parameter, resulting in the first co-authored benchmark paper.",
-  /* 5 */ "Why multi-probe matters: when two independent telescopes agree, cosmologists celebrate concordance. But if both probes share an unmodeled calibration or galactic extinction error, they agree for the wrong reason. Automated cross-probe tension diagnosis is a major open challenge.",
-  /* 6 */ "The collaboration ask for Sid: combine Ayan’s DESC pipeline and SNANA ground-truth mastery with Sid’s leadership in simulation-based inference and foundation reasoning evals. Target NSF 26-522 Core Research with a science-first proposal focused on Rubin LSST readiness.",
-  /* 7 */ "Closing with our scientific boundaries: models like AION and AstroM3 are perception tools, not scientific arbiters. The benchmark has not yet been run. The entire pitch is built on unyielding scientific honesty: Not 'Can AI do science?', but 'What evidence would compel us to trust it?'"
+// Structured Data for each slide (Talk Track, Objective, Skeptic Defense, Cinema Subtitles)
+const slideData = [
+  {
+    /* 0 */
+    talk: "What if an AI team produces an elegant cosmological fit that claims discovery of dynamic dark energy? The residuals look pristine. But what tells us it hasn't simply absorbed a 0.03 mag host dust drift into the cosmological parameter? Before we let AI accelerate cosmology, we need an adversarial evaluation environment.",
+    objective: "Establish the core scientific dilemma: precision science is uniquely vulnerable to self-consistent false discoveries that pass all standard metrics.",
+    defense: "Standard optimizers and MCMC will eagerly absorb unmodeled physical shifts into cosmological parameters unless explicit prior margins or blinded red-teaming are enforced.",
+    beats: [
+      "What if an AI discovery of <span class='hl-cyan'>dynamic dark energy (w₀ ≠ -1)</span> passes every standard likelihood test?",
+      "In reality, it merely absorbed an unmodeled <span class='hl-coral'>0.03 mag dust drift</span> into the cosmological parameters.",
+      "Before autonomous AI runs precision cosmology, we must test: <span class='hl-amber'>What if the wrong universe passes every test?</span>"
+    ]
+  },
+  {
+    /* 1 */
+    talk: "This is the Chameleon Systematic. When a physical perturbation projects in the exact same direction as the cosmological sensitivity, maximum-likelihood fitting absorbs it into the parameter. The residuals remain flat (χ²/dof = 1.02). No optimizer can detect what is mathematically degenerate without external priors.",
+    objective: "Demonstrate mathematically and visually why degenerate systematics cannot be detected by standard residuals alone.",
+    defense: "This is not poor coding—it is an intrinsic mathematical degeneracy (∂μ/∂w) between astrophysics and cosmology.",
+    beats: [
+      "The <span class='hl-amber'>Chameleon Systematic</span>: when host dust extinction mimics the exact geometric curvature of dark energy.",
+      "As drift increases, the optimizer absorbs it into <span class='hl-coral'>w₀ = -0.84</span> while residuals remain flat (χ²/dof = 1.02).",
+      "<span class='hl-cyan'>Degeneracy in plain sight</span>: No standard optimizer can catch a mathematically identical distortion without external priors."
+    ]
+  },
+  {
+    /* 2 */
+    talk: "Here is our core technical architecture: a cryptographically sealed Evaluator Vault separated from the Analyst Sandbox by an air-gap firewall. SNANA simulation seeds, injection amplitudes, and true parameters never touch the LLM context window. Everything is unsealed only after frozen submission.",
+    objective: "Show institutional engineering rigor: preventing prompt leaks, data contamination, and reward hacking through an air-gapped architecture.",
+    defense: "LLMs cannot cheat or memorize the ground truth because evaluator seeds and injection amplitudes are air-gapped from the analyst agent.",
+    beats: [
+      "SENTINEL introduces an <span class='hl-emerald'>Air-Gapped Adversarial Architecture</span> separating Red Evaluator from Blue Analyst.",
+      "The <span class='hl-coral'>Evaluator Vault</span> holds simulation seeds and truth; the <span class='hl-cyan'>Analyst Sandbox</span> only receives masked catalogs.",
+      "Ground truth is cryptographically sealed until frozen inference submission: <span class='hl-amber'>Zero prompt leaks. Zero reward hacking.</span>"
+    ]
+  },
+  {
+    /* 3 */
+    talk: "We enforce strict ablations. We do not assume that an agent swarm is smarter than a simple χ² test. Tier 1 is our baseline LightGBM scorecard. Tier 4 tests agent teams against the Persuasive Consensus Trap. Every layer must prove its value per dollar of compute.",
+    objective: "Establish scientific humility and rigorous ablation: measuring cost-per-discovery rather than assuming LLM superiority.",
+    defense: "We actively test for the 'Persuasive Consensus Trap,' where multi-agent teams hallucinate mutual agreement on a false signal.",
+    beats: [
+      "We enforce <span class='hl-cyan'>strict tier ablations</span>: never assume an expensive multi-agent swarm beats a simple statistician.",
+      "From <span class='hl-emerald'>Tier 1 (LightGBM baseline)</span> to <span class='hl-coral'>Tier 4 (Multi-Agent Swarm)</span>, every layer must earn its compute budget.",
+      "Crucial test: detecting the <span class='hl-amber'>Persuasive Consensus Trap</span>, where collaborating agents reinforce false discoveries."
+    ]
+  },
+  {
+    /* 4 */
+    talk: "Here is our pragmatic roadmap. Weeks 1 to 4 reproduce the baseline. Weeks 5 to 12 is the primary ask for Sid: a jointly scoped, blinded pilot with 1 injection family and 1 cosmological parameter, resulting in the first co-authored benchmark paper.",
+    objective: "Offer an immediate, de-risked collaborative entry point: a concrete 12-week blinded pilot resulting in a joint paper.",
+    defense: "Even a negative result (proving where AI fails) is an immediate high-impact publication in precision astrophysics.",
+    beats: [
+      "A pragmatic <span class='hl-cyan'>12-Week Joint Pilot</span>: low risk, high rigor, immediate paper deliverable.",
+      "Weeks 1–4: Baseline reproduction. <span class='hl-amber'>Weeks 5–12: Joint blinded pilot</span> on 1 systematic injection family & w₀.",
+      "Result: The first <span class='hl-emerald'>co-authored adversarial benchmark paper</span>, establishing empirical grounds for NSF funding."
+    ]
+  },
+  {
+    /* 5 */
+    talk: "Why multi-probe matters: when two independent telescopes agree, cosmologists celebrate concordance. But if both probes share an unmodeled calibration or galactic extinction error, they agree for the wrong reason. Automated cross-probe tension diagnosis is a major open challenge.",
+    objective: "Demonstrate that starting with Type Ia supernovae is a stepping stone to the full Rubin LSST multi-probe horizon.",
+    defense: "Supernovae provide cheap, fast SNANA ground truth; once proven, the methodology scales directly to Weak Lensing and BAO.",
+    beats: [
+      "Supernovae are the proving ground; <span class='hl-cyan'>Rubin LSST Multi-Probe</span> is the ultimate destination.",
+      "When two probes agree, cosmologists celebrate concordance—unless they share a <span class='hl-coral'>hidden shared systematic</span>.",
+      "SENTINEL expands from Type Ia to <span class='hl-emerald'>Weak Lensing, Galaxy Clustering, and Cross-Tension Arbitration</span>."
+    ]
+  },
+  {
+    /* 6 */
+    talk: "The collaboration ask for Sid: combine Ayan’s DESC pipeline and SNANA ground-truth mastery with Sid’s leadership in simulation-based inference and foundation reasoning evals. Target NSF 26-522 Core Research with a science-first proposal focused on Rubin LSST readiness.",
+    objective: "Propose an exact, complementary division of labor for an NSF 26-522 Core Research proposal.",
+    defense: "This is a science-first proposal grounded in real Rubin DESC infrastructure, not generic computer science hype.",
+    beats: [
+      "The Partnership: <span class='hl-cyan'>Ayan's DESC pipeline & SNANA mastery</span> + <span class='hl-amber'>Sid's SBI & reasoning evals leadership</span>.",
+      "Targeting <span class='hl-emerald'>NSF 26-522 Core Research</span>: Science-first, empirically grounded, Rubin LSST-focused.",
+      "Action: Co-scope the blinded pilot protocol and establish <span class='hl-cyan'>IAIFI / BU computational alignment</span>."
+    ]
+  },
+  {
+    /* 7 */
+    talk: "Closing with our scientific boundaries: models like AION and AstroM3 are perception tools, not scientific arbiters. The benchmark has not yet been run. The entire pitch is built on unyielding scientific honesty: Not 'Can AI do science?', but 'What evidence would compel us to trust it?'",
+    objective: "Disarm scientific skepticism with total epistemic integrity: clarify what is existing vs proposed, and define strict validation boundaries.",
+    defense: "Full transparency: this benchmark has not yet been run; it is an unfunded conceptual proposal seeking collaborative validation.",
+    beats: [
+      "Epistemic Integrity: Foundation models are <span class='hl-amber'>perception tools</span>, not autonomous scientific arbiters.",
+      "The benchmark is <span class='hl-cyan'>conceptually designed, not yet run</span>: Absolute transparency on evidence boundaries.",
+      "The defining question of precision science: <span class='hl-emerald'>'What evidence would compel us to trust it?'</span>"
+    ]
+  }
 ];
 
 // Initialize Nav Pill
 navPill.innerHTML = scenes.map((s, i) => 
   `<button data-nav="${i}"><span>${String(i + 1).padStart(2, '0')}</span>${s.dataset.title}</button>`
 ).join('');
+
+function updateSlideContent(index) {
+  const data = slideData[index];
+  if (!data) return;
+
+  if (notesContent) notesContent.textContent = data.talk;
+  if (notesObjective) notesObjective.textContent = data.objective;
+  if (notesDefense) notesDefense.textContent = data.defense;
+}
 
 function setSlide(index) {
   currentSlide = Math.max(0, Math.min(scenes.length - 1, index));
@@ -229,7 +334,7 @@ function setSlide(index) {
   btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
   btnNext.style.opacity = currentSlide === scenes.length - 1 ? '0.3' : '1';
 
-  notesContent.textContent = talkTracks[currentSlide] || '';
+  updateSlideContent(currentSlide);
   history.replaceState(null, '', '#' + currentSlide);
   window.scrollTo(0, 0);
 
@@ -249,13 +354,19 @@ document.querySelectorAll('[data-go]').forEach(b => {
 
 document.addEventListener('keydown', e => {
   if (isLabMode || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
-  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') {
     e.preventDefault();
-    setSlide(currentSlide + 1);
+    if (isTourPlaying) nextTourSlide();
+    else setSlide(currentSlide + 1);
   }
   if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
     e.preventDefault();
     setSlide(currentSlide - 1);
+  }
+  if (e.key === ' ' && isTourPlaying) {
+    e.preventDefault();
+    if (isTourPaused) resumeTour();
+    else pauseTour();
   }
   if (e.key === 'Escape' && isTourPlaying) {
     stopTour();
@@ -275,6 +386,30 @@ notesToggle.onclick = () => {
   }
 };
 
+if (closeNotesBtn) {
+  closeNotesBtn.onclick = () => {
+    document.body.classList.remove('show-notes');
+    notesToggle.setAttribute('aria-pressed', false);
+    notesToggle.style.borderColor = 'var(--border-subtle)';
+    notesToggle.style.color = 'var(--text-main)';
+    notesDrawer.style.display = 'none';
+  };
+}
+
+// Teleprompter Copy Script Button
+if (copyScriptBtn) {
+  copyScriptBtn.onclick = () => {
+    const cur = slideData[currentSlide];
+    const fullText = `SENTINEL COSMOLOGY PRESENTATION - SLIDE ${currentSlide + 1} (${scenes[currentSlide].dataset.title.toUpperCase()})\n\n🗣️ LIVE TALK TRACK:\n${cur.talk}\n\n🎯 STRATEGIC OBJECTIVE:\n${cur.objective}\n\n🛡️ SKEPTIC DEFENSE:\n${cur.defense}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      copyScriptBtn.textContent = '✓ Copied!';
+      setTimeout(() => { copyScriptBtn.textContent = '📋 Copy Script'; }, 2000);
+    }).catch(() => {
+      copyScriptBtn.textContent = '✓ Done';
+    });
+  };
+}
+
 // Fullscreen Toggle
 document.getElementById('fullscreenToggle').onclick = async () => {
   try {
@@ -286,104 +421,180 @@ document.getElementById('fullscreenToggle').onclick = async () => {
 };
 
 /* ============================================================
-   PILLAR 3: AUTOPLAY CINEMATIC STORY TOUR & NARRATION
+   PILLAR 3: SILENT CINEMATIC TOUR WITH DYNAMIC DATA TRIGGERS
    ============================================================ */
-let tourUtterance = null;
-
 function startTour() {
+  if (isLabMode) switchMode(false);
   isTourPlaying = true;
+  isTourPaused = false;
   cinemaTourToggle.classList.add('playing');
-  cinemaTourToggle.textContent = '⏸ Pause Tour';
-  if (!sound.enabled) sound.toggle();
+  cinemaTourToggle.textContent = '⏹ Exit Tour';
+  if (cinemaHUD) cinemaHUD.style.display = 'block';
 
   playTourSlide(currentSlide);
 }
 
 function stopTour() {
   isTourPlaying = false;
+  isTourPaused = false;
   cinemaTourToggle.classList.remove('playing');
   cinemaTourToggle.textContent = '🎬 Cinematic Tour';
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
+  if (cinemaHUD) cinemaHUD.style.display = 'none';
+  if (cinemaProgressBar) cinemaProgressBar.style.width = '0%';
+  if (cinemaPauseBtn) cinemaPauseBtn.textContent = '⏸ Pause';
+
+  clearInterval(tourProgressInterval);
+  tourProgressInterval = null;
+  tourElapsedMs = 0;
 }
 
-cinemaTourToggle.onclick = () => {
-  if (isTourPlaying) stopTour();
-  else startTour();
-};
+function pauseTour() {
+  if (!isTourPlaying) return;
+  isTourPaused = true;
+  cinemaPauseBtn.textContent = '▶ Resume';
+  clearInterval(tourProgressInterval);
+  tourProgressInterval = null;
+}
+
+function resumeTour() {
+  if (!isTourPlaying || !isTourPaused) return;
+  isTourPaused = false;
+  cinemaPauseBtn.textContent = '⏸ Pause';
+  startSlideProgress(currentSlide, tourElapsedMs);
+}
+
+function nextTourSlide() {
+  if (!isTourPlaying) return;
+  clearInterval(tourProgressInterval);
+  tourProgressInterval = null;
+  tourElapsedMs = 0;
+  if (currentSlide < scenes.length - 1) {
+    playTourSlide(currentSlide + 1);
+  } else {
+    stopTour();
+  }
+}
 
 function playTourSlide(index) {
   if (!isTourPlaying) return;
   setSlide(index);
+  tourElapsedMs = 0;
 
-  // Trigger contextual slide animations during the tour
-  if (index === 0) {
-    setTimeout(() => {
-      if (!isTourPlaying) return;
-      heroBtnTru.click();
-      sound.playImpact();
-    }, 4500);
-  } else if (index === 1) {
-    driftRange.value = 0.5;
-    renderHubble();
-    let step = 0;
-    const interval = setInterval(() => {
-      if (!isTourPlaying) { clearInterval(interval); return; }
-      step++;
-      driftRange.value = (0.5 + step * 0.25).toFixed(1);
-      renderHubble();
-      if (step >= 8) {
-        clearInterval(interval);
-        setTimeout(() => {
-          if (!isTourPlaying) return;
-          btnRevealTruth.click();
-          sound.playImpact();
-        }, 1200);
-      }
-    }, 350);
-  } else if (index === 3) {
-    setTimeout(() => { if (isTourPlaying) document.querySelector('[data-tier="1"]').click(); }, 3000);
-    setTimeout(() => { if (isTourPlaying) document.querySelector('[data-tier="2"]').click(); }, 6000);
-    setTimeout(() => { if (isTourPlaying) document.querySelector('[data-tier="3"]').click(); }, 9000);
+  if (cinemaTag) {
+    cinemaTag.textContent = `CINEMATIC WALKTHROUGH · CHAPTER ${String(index + 1).padStart(2, '0')} / 08 · ${scenes[index].dataset.title.toUpperCase()}`;
   }
 
-  // Speak the plain-English explanation
-  const text = talkTracks[index];
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    tourUtterance = new SpeechSynthesisUtterance(text);
-    tourUtterance.rate = 1.02;
-    tourUtterance.pitch = 1.0;
+  // Trigger contextual slide animations during the tour
+  triggerSceneAnimation(index);
 
-    // Pick best English voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const naturalVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha')));
-    if (naturalVoice) tourUtterance.voice = naturalVoice;
+  startSlideProgress(index, 0);
+}
 
-    tourUtterance.onend = () => {
-      if (!isTourPlaying) return;
+function startSlideProgress(index, startOffsetMs = 0) {
+  clearInterval(tourProgressInterval);
+
+  const data = slideData[index];
+  const beats = data.beats;
+  const totalMs = SLIDE_DURATION_MS;
+
+  function renderBeat(elapsed) {
+    if (!beats || beats.length === 0 || !cinemaText) return;
+    let beatIdx = 0;
+    if (elapsed >= 7500 && beats.length > 2) beatIdx = 2;
+    else if (elapsed >= 3800 && beats.length > 1) beatIdx = 1;
+
+    if (cinemaText.dataset.currentBeat !== String(beatIdx)) {
+      cinemaText.dataset.currentBeat = String(beatIdx);
+      cinemaText.style.opacity = '0';
       setTimeout(() => {
-        if (!isTourPlaying) return;
-        if (currentSlide < scenes.length - 1) {
-          playTourSlide(currentSlide + 1);
-        } else {
-          stopTour();
-        }
-      }, 1800);
-    };
+        cinemaText.innerHTML = beats[beatIdx];
+        cinemaText.style.opacity = '1';
+      }, 150);
+    }
+  }
 
-    window.speechSynthesis.speak(tourUtterance);
-  } else {
-    // Fallback timer if speech synthesis is not supported
-    setTimeout(() => {
-      if (isTourPlaying && currentSlide < scenes.length - 1) {
+  renderBeat(startOffsetMs);
+
+  const tickMs = 50;
+  tourProgressInterval = setInterval(() => {
+    if (isTourPaused || !isTourPlaying) return;
+    tourElapsedMs += tickMs;
+
+    const pct = Math.min(100, (tourElapsedMs / totalMs) * 100);
+    if (cinemaProgressBar) cinemaProgressBar.style.width = `${pct}%`;
+
+    renderBeat(tourElapsedMs);
+
+    if (tourElapsedMs >= totalMs) {
+      clearInterval(tourProgressInterval);
+      tourProgressInterval = null;
+      if (currentSlide < scenes.length - 1) {
         playTourSlide(currentSlide + 1);
       } else {
         stopTour();
       }
-    }, 12000);
+    }
+  }, tickMs);
+}
+
+function triggerSceneAnimation(index) {
+  if (index === 0) {
+    // Hologram: Reveal ground truth at 4.2s with sound impact
+    setTimeout(() => {
+      if (!isTourPlaying || isTourPaused || currentSlide !== 0) return;
+      if (typeof heroBtnTru !== 'undefined' && heroBtnTru) heroBtnTru.click();
+      sound.playImpact();
+    }, 4200);
+  } else if (index === 1) {
+    // Hubble: Animate drift range from 0.5 to 2.5, then reveal truth
+    if (typeof driftRange !== 'undefined' && driftRange) {
+      driftRange.value = 0.5;
+      renderHubble();
+      let step = 0;
+      const interval = setInterval(() => {
+        if (!isTourPlaying || isTourPaused || currentSlide !== 1) { clearInterval(interval); return; }
+        step++;
+        driftRange.value = (0.5 + step * 0.25).toFixed(1);
+        renderHubble();
+        if (step >= 8) {
+          clearInterval(interval);
+          setTimeout(() => {
+            if (!isTourPlaying || isTourPaused || currentSlide !== 1) return;
+            if (typeof btnRevealTruth !== 'undefined' && btnRevealTruth) btnRevealTruth.click();
+            sound.playImpact();
+          }, 1000);
+        }
+      }, 320);
+    }
+  } else if (index === 3) {
+    // AI tiers: cycle through Tiers 1, 2, 3, 4
+    setTimeout(() => { if (isTourPlaying && !isTourPaused && currentSlide === 3) document.querySelector('[data-tier="1"]')?.click(); }, 2500);
+    setTimeout(() => { if (isTourPlaying && !isTourPaused && currentSlide === 3) document.querySelector('[data-tier="2"]')?.click(); }, 5200);
+    setTimeout(() => { if (isTourPlaying && !isTourPaused && currentSlide === 3) document.querySelector('[data-tier="3"]')?.click(); }, 7800);
   }
+}
+
+// Cinema Tour Controls
+if (cinemaTourToggle) {
+  cinemaTourToggle.onclick = () => {
+    if (isTourPlaying) stopTour();
+    else startTour();
+  };
+}
+
+if (cinemaPauseBtn) {
+  cinemaPauseBtn.onclick = () => {
+    if (isTourPaused) resumeTour();
+    else pauseTour();
+  };
+}
+
+if (cinemaNextBtn) {
+  cinemaNextBtn.onclick = () => nextTourSlide();
+}
+
+if (cinemaExitBtn) {
+  cinemaExitBtn.onclick = () => stopTour();
 }
 
 /* ============================================================

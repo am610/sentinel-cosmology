@@ -1252,18 +1252,128 @@ body.mode-lab #labContainer {
   gap: 20px;
 }
 
-/* Presenter Notes Drawer */
+/* ============================================================
+   CINEMATIC SUBTITLE HUD (Zero robotic voice, pure glowing typography)
+   ============================================================ */
+.cinema-hud {
+  position: fixed;
+  bottom: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(920px, 94vw);
+  background: rgba(8, 12, 26, 0.94);
+  border: 1px solid var(--border-cyan-glow);
+  border-radius: 16px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 242, 254, 0.18);
+  backdrop-filter: blur(24px);
+  z-index: 85;
+  overflow: hidden;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinema-hud-progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cinema-hud-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--cyan), var(--violet), var(--coral));
+  box-shadow: 0 0 10px var(--cyan-glow);
+  transition: width 0.1s linear;
+}
+
+.cinema-hud-body {
+  padding: 16px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cinema-hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cinema-hud-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--cyan);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+  box-shadow: 0 0 8px var(--coral);
+  animation: pulseDot 1.4s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.cinema-hud-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-cinema-ctrl {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cinema-ctrl:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: var(--cyan);
+}
+
+.cinema-hud-text {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.55;
+  color: #f1f5f9;
+  letter-spacing: -0.15px;
+  min-height: 48px;
+  transition: opacity 0.25s ease;
+}
+
+/* Glowing Highlights in Subtitles */
+.hl-cyan { color: #00f2fe; font-weight: 700; text-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+.hl-coral { color: #ff2a6d; font-weight: 700; text-shadow: 0 0 12px rgba(255, 42, 109, 0.4); }
+.hl-amber { color: #f59e0b; font-weight: 700; text-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+.hl-emerald { color: #10b981; font-weight: 700; text-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+
+/* Presenter Teleprompter Drawer */
 .notes-drawer {
   position: fixed;
   bottom: 74px;
-  left: 4vw;
-  right: 4vw;
-  background: rgba(12, 18, 38, 0.96);
+  left: 3vw;
+  right: 3vw;
+  background: rgba(10, 15, 32, 0.97);
   border: 1px solid var(--border-amber-glow);
-  border-radius: 14px;
-  padding: 20px 28px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+  padding: 20px 24px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.7);
   z-index: 90;
   display: none;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1278,20 +1388,77 @@ body.show-notes .notes-drawer {
   display: block;
 }
 
-.notes-drawer .notes-label {
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notes-label {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   color: var(--amber);
-  margin-bottom: 8px;
+}
+
+.btn-xs {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--amber);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-xs:hover {
+  background: var(--amber);
+  color: #000;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 960px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.notes-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notes-subhead {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
 }
 
 .notes-drawer p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.6;
-  color: #e2e8f0;
+  color: #cbd5e1;
+}
+
+.notes-col-talk p {
+  color: #f1f5f9;
+  font-size: 14px;
 }
 
 /* Bottom Bar / Footer */
