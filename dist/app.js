@@ -1,306 +1,338 @@
-// SENTINEL Presentation Logic & Interactive Scientific Engines
+// SENTINEL: Next-Generation Scientific Presentation Engine
 const scenes = [...document.querySelectorAll('.scene')];
-const nav = document.getElementById('nav');
-let chapter = 0;
+const navPill = document.getElementById('navPill');
+const slideCounter = document.getElementById('slideCounter');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const notesDrawer = document.getElementById('notesDrawer');
+const notesContent = document.getElementById('notesContent');
+const notesToggle = document.getElementById('notesToggle');
 
-// Setup Nav Buttons
-nav.innerHTML = scenes.map((s, i) => 
-  `<button data-go="${i}"><span>${String(i + 1).padStart(2, '0')}</span>${s.dataset.title}</button>`
+let currentSlide = 0;
+
+// Presenter Talk Tracks for each scene
+const talkTracks = [
+  /* 0 */ "“Imagine an AI team delivers an automated cosmological analysis claiming evidence for dynamical dark energy (w ≠ -1) at high significance. The residuals look completely clean. But what tells us it hasn't simply absorbed a 0.03 mag host dust drift into the dark energy parameter? Before we let AI accelerate cosmology, we need an adversarial evaluation environment.”",
+  /* 1 */ "“This is the Chameleon Systematic. When a physical perturbation projects in the exact same direction as the model's cosmological sensitivity, maximum-likelihood fitting absorbs it into the parameter. The residuals remain flat (χ²/dof = 1.02). No optimizer can detect what is mathematically degenerate without external priors. A trustworthy scientific agent must recognize non-identifiability and abstain.”",
+  /* 2 */ "“Here is the core technical architecture: a cryptographically sealed Evaluator Vault separated from the Analyst Sandbox by an air-gap firewall. SNANA simulation seeds, injection amplitudes, and true parameters never touch the LLM context window, filenames, or logs. Everything is unsealed only after frozen analyst submission.”",
+  /* 3 */ "“We enforce strict ablations. We don't assume that an agent swarm is smarter than a simple χ² test. Tier 1 is our baseline LightGBM scorecard. Notice Tier 4: agent teams risk the Persuasive Consensus Trap, where agents convince each other of an unphysical explanation. Every layer must prove its value per dollar of compute.”",
+  /* 4 */ "“Here is the pragmatic roadmap. Weeks 1–4 reproduce the baseline. Weeks 5–12 is the primary ask for Sid: a jointly scoped, blinded pilot with 1 injection family and 1 cosmological parameter, resulting in the first co-authored benchmark paper. We only scale to multi-probe after proving the metric.”",
+  /* 5 */ "“Why multi-probe matters: when two independent telescopes agree, cosmologists celebrate concordance. But if both probes share an unmodeled calibration or galactic extinction error, they agree for the wrong reason. Automated cross-probe tension diagnosis is a major open challenge with no current owner.”",
+  /* 6 */ "“The collaboration ask for Sid: combine Ayan’s DESC pipeline and SNANA ground-truth mastery with Sid’s leadership in simulation-based inference (SBI) and foundation reasoning evals. Target NSF 26-522 (Astronomical Sciences Core Research) with a science-first proposal focused on Rubin LSST readiness.”",
+  /* 7 */ "“Closing with our scientific boundaries: models like AION and AstroM3 are perception tools, not scientific arbiters. The benchmark has not yet been run. The entire pitch is built on unyielding scientific honesty: Not 'Can AI do science?', but 'What evidence would compel us to trust it?'”"
+];
+
+// Initialize Nav Pill
+navPill.innerHTML = scenes.map((s, i) => 
+  `<button data-nav="${i}"><span>${String(i + 1).padStart(2, '0')}</span>${s.dataset.title}</button>`
 ).join('');
 
-function go(i) {
-  chapter = Math.max(0, Math.min(scenes.length - 1, i));
-  scenes.forEach((s, j) => s.classList.toggle('active', j === chapter));
-  [...nav.children].forEach((b, j) => {
-    b.classList.toggle('active', j === chapter);
-    b.setAttribute('aria-current', j === chapter ? 'step' : 'false');
+function setSlide(index) {
+  currentSlide = Math.max(0, Math.min(scenes.length - 1, index));
+  
+  scenes.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+  [...navPill.children].forEach((b, i) => {
+    b.classList.toggle('active', i === currentSlide);
+    b.setAttribute('aria-current', i === currentSlide ? 'page' : 'false');
   });
-  document.getElementById('chapterCount').textContent = String(chapter + 1).padStart(2, '0') + ' / 08';
-  document.getElementById('prev').disabled = chapter === 0;
-  document.getElementById('next').disabled = chapter === scenes.length - 1;
-  history.replaceState(null, '', '#' + chapter);
+
+  slideCounter.textContent = `${String(currentSlide + 1).padStart(2, '0')} / 08`;
+  btnPrev.disabled = currentSlide === 0;
+  btnNext.disabled = currentSlide === scenes.length - 1;
+  btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+  btnNext.style.opacity = currentSlide === scenes.length - 1 ? '0.3' : '1';
+
+  notesContent.textContent = talkTracks[currentSlide] || '';
+  history.replaceState(null, '', '#' + currentSlide);
   window.scrollTo(0, 0);
 }
 
-document.querySelectorAll('[data-go]').forEach(b => {
-  b.addEventListener('click', () => go(Number(b.dataset.go)));
+// Navigation Listeners
+navPill.querySelectorAll('[data-nav]').forEach(btn => {
+  btn.addEventListener('click', () => setSlide(Number(btn.dataset.nav)));
 });
-document.getElementById('prev').onclick = () => go(chapter - 1);
-document.getElementById('next').onclick = () => go(chapter + 1);
+btnPrev.onclick = () => setSlide(currentSlide - 1);
+btnNext.onclick = () => setSlide(currentSlide + 1);
+
+document.querySelectorAll('[data-go]').forEach(b => {
+  b.addEventListener('click', () => setSlide(Number(b.dataset.go)));
+});
 
 document.addEventListener('keydown', e => {
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
-  if (e.key === 'ArrowRight' || e.key === 'PageDown') go(chapter + 1);
-  if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(chapter - 1);
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+    e.preventDefault();
+    setSlide(currentSlide + 1);
+  }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    setSlide(currentSlide - 1);
+  }
 });
 
-// Presenter Notes & Fullscreen
-const notesBtn = document.getElementById('notesToggle');
-notesBtn.onclick = () => {
-  document.body.classList.toggle('showNotes');
-  const active = document.body.classList.contains('showNotes');
-  notesBtn.setAttribute('aria-pressed', active);
-  notesBtn.style.borderColor = active ? 'var(--amber)' : 'var(--line)';
+// Presenter Notes Toggle
+notesToggle.onclick = () => {
+  document.body.classList.toggle('show-notes');
+  const active = document.body.classList.contains('show-notes');
+  notesToggle.setAttribute('aria-pressed', active);
+  notesToggle.style.borderColor = active ? 'var(--amber)' : 'var(--border-subtle)';
+  notesToggle.style.color = active ? 'var(--amber)' : 'var(--text-main)';
 };
 
-document.getElementById('fullscreen').onclick = async () => {
+// Fullscreen Toggle
+document.getElementById('fullscreenToggle').onclick = async () => {
   try {
     if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
     else await document.exitFullscreen();
-  } catch {
-    document.getElementById('fullscreen').textContent = 'Use browser F11';
+  } catch (err) {
+    console.log('Fullscreen toggled via browser');
   }
 };
 
 /* ============================================================
-   SCENE 0: Hero Parameter Likelihood Plot (w0, wa)
+   SCENE 0: Hero Hologram (w0, wa Parameter Likelihood)
    ============================================================ */
-let heroShowTruth = false;
-function drawHeroPlot() {
-  const svg = document.getElementById('heroPlot');
+let heroRevealTruth = false;
+function renderHeroHologram() {
+  const svg = document.getElementById('heroHologram');
   if (!svg) return;
-  
-  // Coordinate frame: w0 from -1.4 to -0.6 (x: 60 to 540), wa from -1.0 to 1.0 (y: 380 to 60)
-  const px = w0 => 60 + ((w0 - (-1.4)) / 0.8) * 480;
-  const py = wa => 380 - ((wa - (-1.0)) / 2.0) * 320;
-  
-  // Grid lines
-  let grid = '';
+
+  const px = w0 => 70 + ((w0 - (-1.4)) / 0.8) * 460;
+  const py = wa => 360 - ((wa - (-1.0)) / 2.0) * 300;
+
+  let gridLines = '';
   for (let w0 = -1.4; w0 <= -0.61; w0 += 0.2) {
     const x = px(w0);
-    grid += `<line x1="${x}" y1="50" x2="${x}" y2="390" stroke="#16263f" stroke-width="1"/>`;
-    grid += `<text x="${x}" y="415" fill="#64748b" font-size="11" text-anchor="middle" font-family="'JetBrains Mono',monospace">${w0.toFixed(1)}</text>`;
+    gridLines += `<line x1="${x}" y1="40" x2="${x}" y2="360" stroke="#131e38" stroke-width="1"/>`;
+    gridLines += `<text x="${x}" y="385" fill="#64748b" font-size="11" text-anchor="middle" font-family="var(--font-mono)">${w0.toFixed(1)}</text>`;
   }
   for (let wa = -1.0; wa <= 1.01; wa += 0.5) {
     const y = py(wa);
-    grid += `<line x1="50" y1="${y}" x2="550" y2="${y}" stroke="#16263f" stroke-width="1"/>`;
-    grid += `<text x="40" y="${y + 4}" fill="#64748b" font-size="11" text-anchor="end" font-family="'JetBrains Mono',monospace">${wa.toFixed(1)}</text>`;
+    gridLines += `<line x1="60" y1="${y}" x2="540" y2="${y}" stroke="#131e38" stroke-width="1"/>`;
+    gridLines += `<text x="50" y="${y + 4}" fill="#64748b" font-size="11" text-anchor="end" font-family="var(--font-mono)">${wa.toFixed(1)}</text>`;
   }
 
-  // Lambda-CDM True Marker at (-1.0, 0.0)
   const trueX = px(-1.0), trueY = py(0.0);
-  
-  // Inferred Marker at (-0.84, +0.38)
   const infX = px(-0.84), infY = py(0.38);
 
-  let content = `
-    <!-- Background Grid -->
-    ${grid}
-    <text x="300" y="435" fill="#94a3b8" font-size="12" text-anchor="middle" font-family="'Space Grotesk',sans-serif">Dark Energy Equation of State w₀</text>
-    <text x="20" y="220" fill="#94a3b8" font-size="12" text-anchor="middle" transform="rotate(-90,20,220)" font-family="'Space Grotesk',sans-serif">Evolution Parameter wₐ</text>
-    
+  let markup = `
+    ${gridLines}
+    <text x="300" y="410" fill="#94a3b8" font-size="12" text-anchor="middle" font-family="var(--font-display)">Dark Energy Equation of State w₀</text>
+    <text x="20" y="200" fill="#94a3b8" font-size="12" text-anchor="middle" transform="rotate(-90,20,200)" font-family="var(--font-display)">Evolution Parameter wₐ</text>
+
     <!-- Inferred Likelihood Contours -->
     <g transform="translate(${infX}, ${infY}) rotate(-32)">
-      <ellipse rx="130" ry="52" fill="rgba(0, 245, 212, 0.06)" stroke="#00f5d4" stroke-width="1" stroke-opacity="0.4"/>
-      <ellipse rx="85" ry="34" fill="rgba(0, 245, 212, 0.12)" stroke="#00f5d4" stroke-width="1.5" stroke-opacity="0.8"/>
-      <ellipse rx="42" ry="18" fill="rgba(0, 245, 212, 0.25)" stroke="#00f5d4" stroke-width="2"/>
+      <ellipse rx="135" ry="54" fill="rgba(0, 242, 254, 0.05)" stroke="#00f2fe" stroke-width="1" stroke-opacity="0.4"/>
+      <ellipse rx="88" ry="35" fill="rgba(0, 242, 254, 0.12)" stroke="#00f2fe" stroke-width="1.5" stroke-opacity="0.75"/>
+      <ellipse rx="44" ry="18" fill="rgba(0, 242, 254, 0.28)" stroke="#00f2fe" stroke-width="2"/>
     </g>
-    <circle cx="${infX}" cy="${infY}" r="4" fill="#00f5d4"/>
-    <text x="${infX + 15}" y="${infY - 20}" fill="#00f5d4" font-size="13" font-weight="700" font-family="'Space Grotesk',sans-serif">Inferred Fit (w ≠ -1)</text>
-    <text x="${infX + 15}" y="${infY - 5}" fill="#6ee7b7" font-size="11" font-family="'JetBrains Mono',monospace">χ²/dof = 1.01</text>
+    <circle cx="${infX}" cy="${infY}" r="4" fill="#00f2fe"/>
+    <text x="${infX + 16}" y="${infY - 20}" fill="#00f2fe" font-size="13" font-weight="700" font-family="var(--font-display)">Inferred Fit (w₀ ≠ -1)</text>
+    <text x="${infX + 16}" y="${infY - 4}" fill="#79f9ff" font-size="11" font-family="var(--font-mono)">5.1σ Tension Claimed</text>
   `;
 
-  if (heroShowTruth) {
-    content += `
-      <!-- Vector of injected bias -->
-      <line x1="${trueX}" y1="${trueY}" x2="${infX}" y2="${infY}" stroke="#ff5400" stroke-width="2.5" stroke-dasharray="4 4"/>
-      <!-- True point -->
-      <circle cx="${trueX}" cy="${trueY}" r="6" fill="#ffb703" stroke="#fff" stroke-width="1.5"/>
-      <path d="M${trueX - 10} ${trueY}h20M${trueX} ${trueY - 10}v20" stroke="#ffb703" stroke-width="2"/>
-      <text x="${trueX}" y="${trueY + 24}" fill="#ffb703" font-size="13" font-weight="700" text-anchor="middle" font-family="'Space Grotesk',sans-serif">True ΛCDM (w₀ = -1, wₐ = 0)</text>
-      <text x="310" y="240" fill="#ff5400" font-size="11" font-family="'JetBrains Mono',monospace" font-weight="600">Unmodeled Dust Drift: +0.03 mag</text>
+  if (heroRevealTruth) {
+    markup += `
+      <!-- Connecting vector -->
+      <line x1="${trueX}" y1="${trueY}" x2="${infX}" y2="${infY}" stroke="#ff2a6d" stroke-width="2.5" stroke-dasharray="5 5"/>
+      <!-- True Point Marker -->
+      <circle cx="${trueX}" cy="${trueY}" r="6" fill="#ff9e00" stroke="#fff" stroke-width="2"/>
+      <path d="M${trueX - 12} ${trueY}h24M${trueX} ${trueY - 12}v24" stroke="#ff9e00" stroke-width="2"/>
+      <text x="${trueX}" y="${trueY + 26}" fill="#ff9e00" font-size="13" font-weight="700" text-anchor="middle" font-family="var(--font-display)">True ΛCDM Universe (w₀ = -1, wₐ = 0)</text>
+      <text x="310" y="235" fill="#ff2a6d" font-size="11" font-family="var(--font-mono)" font-weight="700">0.03 mag Dust Camouflage Vector</text>
     `;
   } else {
-    content += `
-      <circle cx="${trueX}" cy="${trueY}" r="3" fill="#334155"/>
-    `;
+    markup += `<circle cx="${trueX}" cy="${trueY}" r="3" fill="#334155"/>`;
   }
 
-  svg.innerHTML = content;
+  svg.innerHTML = markup;
 }
 
-const btnObs = document.getElementById('viewObserver');
-const btnTru = document.getElementById('viewTruth');
-if (btnObs && btnTru) {
-  btnObs.onclick = () => {
-    heroShowTruth = false;
-    btnObs.classList.add('active');
-    btnTru.classList.remove('active');
-    document.getElementById('heroPlotStatus').style.display = 'block';
-    document.getElementById('heroPlotTruth').style.display = 'none';
-    drawHeroPlot();
+const heroBtnObs = document.getElementById('heroToggleObserver');
+const heroBtnTru = document.getElementById('heroToggleTruth');
+if (heroBtnObs && heroBtnTru) {
+  heroBtnObs.onclick = () => {
+    heroRevealTruth = false;
+    heroBtnObs.classList.add('active');
+    heroBtnTru.classList.remove('active');
+    document.getElementById('heroStatusText').style.display = 'block';
+    document.getElementById('heroWarningText').style.display = 'none';
+    renderHeroHologram();
   };
-  btnTru.onclick = () => {
-    heroShowTruth = true;
-    btnTru.classList.add('active');
-    btnObs.classList.remove('active');
-    document.getElementById('heroPlotStatus').style.display = 'none';
-    document.getElementById('heroPlotTruth').style.display = 'block';
-    drawHeroPlot();
+  heroBtnTru.onclick = () => {
+    heroRevealTruth = true;
+    heroBtnTru.classList.add('active');
+    heroBtnObs.classList.remove('active');
+    document.getElementById('heroStatusText').style.display = 'none';
+    document.getElementById('heroWarningText').style.display = 'block';
+    renderHeroHologram();
   };
 }
-drawHeroPlot();
+renderHeroHologram();
 
 /* ============================================================
-   SCENE 1: Supernova Hubble Diagram & Residual Experiment
+   SCENE 1: Interactive Hubble Diagram & Residual Simulator
    ============================================================ */
-let experimentRevealed = false;
-const driftSlider = document.getElementById('drift');
+let hubbleRevealed = false;
+const driftRange = document.getElementById('driftRange');
+const driftOutput = document.getElementById('driftOutput');
+const btnRevealTruth = document.getElementById('btnRevealTruth');
 
-// Pre-generate 30 deterministic mock SN points across redshift z = 0.05 to 1.1
-const mockSNe = [];
+// Generate 32 deterministic synthetic supernovae
+const syntheticSNe = [];
 for (let i = 0; i < 32; i++) {
   const z = 0.05 + (i / 31) * 1.05;
-  // standard cosmology distance modulus approximation
   const baseMu = 43.1 + 5 * Math.log10(z) + 1.1 * z;
-  // deterministic pseudo-random scatter
   const scatter = Math.sin(i * 12.3) * 0.12 + Math.cos(i * 7.7) * 0.05;
-  mockSNe.push({ z, mu: baseMu + scatter, scatter });
+  syntheticSNe.push({ z, mu: baseMu + scatter, scatter });
 }
 
-function drawExperiment() {
-  const d = Number(driftSlider.value);
-  const svg = document.getElementById('experimentPlot');
+function renderHubble() {
+  const svg = document.getElementById('hubblePlot');
   if (!svg) return;
 
-  // Layout: Top panel: Hubble Diagram (y: 30 to 220), Bottom panel: Residuals (y: 250 to 350)
-  // X axis: Redshift z in [0.0, 1.2] mapped to [80, 720]
+  const d = Number(driftRange.value);
+  driftOutput.textContent = `${d.toFixed(1)}σ`;
+
   const px = z => 80 + (z / 1.2) * 640;
-  // Hubble Mu axis: 35 to 46 mapped to [210, 40]
   const pyMu = mu => 210 - ((mu - 35) / 11) * 170;
-  // Residual Axis: -0.5 to +0.5 mag mapped to [340, 260]
   const pyRes = res => 300 - (res / 0.5) * 40;
 
   let grid = '';
-  // Vertical z ticks
   for (let z = 0.2; z <= 1.2; z += 0.2) {
     const x = px(z);
-    grid += `<line x1="${x}" y1="30" x2="${x}" y2="350" stroke="#14233c" stroke-width="1"/>`;
-    grid += `<text x="${x}" y="368" fill="#64748b" font-size="11" text-anchor="middle" font-family="'JetBrains Mono',monospace">z=${z.toFixed(1)}</text>`;
+    grid += `<line x1="${x}" y1="30" x2="${x}" y2="350" stroke="#131e38" stroke-width="1"/>`;
+    grid += `<text x="${x}" y="368" fill="#64748b" font-size="11" text-anchor="middle" font-family="var(--font-mono)">z=${z.toFixed(1)}</text>`;
   }
 
-  // Top baseline curves
-  // True curve (d=0)
+  // Baseline cosmological curves
   let trueCurve = '';
-  // Shifted model curve matching systematic
-  let modelCurve = '';
+  let inferredCurve = '';
   for (let z = 0.05; z <= 1.21; z += 0.02) {
     const trueMu = 43.1 + 5 * Math.log10(z) + 1.1 * z;
-    const shift = (d * 0.04) * (z / 1.2); // chromatic drift aligned with w
-    const inferredMu = trueMu + shift;
-    
+    const shift = (d * 0.04) * (z / 1.2);
+    const infMu = trueMu + shift;
     trueCurve += (trueCurve ? 'L' : 'M') + px(z).toFixed(1) + ' ' + pyMu(trueMu).toFixed(1);
-    modelCurve += (modelCurve ? 'L' : 'M') + px(z).toFixed(1) + ' ' + pyMu(inferredMu).toFixed(1);
+    inferredCurve += (inferredCurve ? 'L' : 'M') + px(z).toFixed(1) + ' ' + pyMu(infMu).toFixed(1);
   }
 
-  // Draw Supernova points and residuals
-  let points = '';
+  let snPoints = '';
   let resPoints = '';
-  mockSNe.forEach(sn => {
-    // observed mu has the systematic shift baked into the simulation!
+  syntheticSNe.forEach(sn => {
     const obsShift = (d * 0.04) * (sn.z / 1.2);
     const obsMu = sn.mu + obsShift;
     const x = px(sn.z);
     const y = pyMu(obsMu);
-    points += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#00f5d4" opacity="0.8"/>`;
-    
-    // Residual against the INFERRED curve: perfectly flat scatter!
+    snPoints += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="#00f2fe" opacity="0.85"/>`;
+
     const resY = pyRes(sn.scatter);
-    resPoints += `<line x1="${x.toFixed(1)}" y1="${(resY - 8).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(resY + 8).toFixed(1)}" stroke="#00f5d4" stroke-opacity="0.3"/>`;
-    resPoints += `<circle cx="${x.toFixed(1)}" cy="${resY.toFixed(1)}" r="2.5" fill="#00f5d4"/>`;
+    resPoints += `<line x1="${x.toFixed(1)}" y1="${(resY - 8).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(resY + 8).toFixed(1)}" stroke="#00f2fe" stroke-opacity="0.35"/>`;
+    resPoints += `<circle cx="${x.toFixed(1)}" cy="${resY.toFixed(1)}" r="2.5" fill="#00f2fe"/>`;
   });
 
-  // Zero residual line
-  const zeroResY = pyRes(0);
-  const resLine = `<line x1="80" y1="${zeroResY}" x2="720" y2="${zeroResY}" stroke="#334155" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+  const zeroLine = `<line x1="80" y1="${pyRes(0)}" x2="720" y2="${pyRes(0)}" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4"/>`;
 
   let content = `
     ${grid}
-    <!-- Labels -->
-    <text x="80" y="24" fill="#94a3b8" font-size="11" font-weight="700" font-family="'Space Grotesk',sans-serif">DISTANCE MODULUS μ(z)</text>
-    <text x="80" y="244" fill="#94a3b8" font-size="11" font-weight="700" font-family="'Space Grotesk',sans-serif">HUBBLE RESIDUALS Δμ (mag)</text>
+    <text x="80" y="24" fill="#94a3b8" font-size="11" font-weight="700" font-family="var(--font-display)">DISTANCE MODULUS μ(z)</text>
+    <text x="80" y="246" fill="#94a3b8" font-size="11" font-weight="700" font-family="var(--font-display)">HUBBLE RESIDUALS Δμ (mag)</text>
 
-    <!-- Inferred Fit Curve -->
-    <path d="${modelCurve}" fill="none" stroke="#00f5d4" stroke-width="2.5"/>
-    <text x="640" y="${pyMu(43.1 + 5*Math.log10(1.1) + 1.1*1.1 + d*0.04) - 12}" fill="#00f5d4" font-size="11" font-family="'JetBrains Mono',monospace" font-weight="600">Inferred Model Fit</text>
+    <!-- Inferred Model Curve -->
+    <path d="${inferredCurve}" fill="none" stroke="#00f2fe" stroke-width="2.5"/>
+    <text x="635" y="${pyMu(43.1 + 5*Math.log10(1.1) + 1.1*1.1 + d*0.04) - 12}" fill="#00f2fe" font-size="11" font-family="var(--font-mono)" font-weight="700">Inferred Model Fit</text>
 
-    ${points}
-
-    <!-- Residual Panel -->
-    ${resLine}
+    ${snPoints}
+    ${zeroLine}
     ${resPoints}
   `;
 
-  if (experimentRevealed) {
+  if (hubbleRevealed) {
     content += `
-      <!-- True Cosmology Curve Revealed -->
-      <path d="${trueCurve}" fill="none" stroke="#ffb703" stroke-width="2" stroke-dasharray="4 4"/>
-      <text x="640" y="${pyMu(43.1 + 5*Math.log10(1.1) + 1.1*1.1) + 20}" fill="#ffb703" font-size="11" font-family="'JetBrains Mono',monospace" font-weight="600">Ground Truth (ΛCDM)</text>
-      <!-- Injected fault vector in residual panel -->
-      <rect x="250" y="242" width="280" height="22" rx="4" fill="rgba(255, 51, 102, 0.15)" stroke="#ff3366"/>
-      <text x="390" y="257" fill="#ff3366" font-size="11" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="600">UNMODELED DRIFT ABSORBED: Δw = +${(d * 0.08).toFixed(2)}</text>
+      <path d="${trueCurve}" fill="none" stroke="#ff9e00" stroke-width="2" stroke-dasharray="5 5"/>
+      <text x="635" y="${pyMu(43.1 + 5*Math.log10(1.1) + 1.1*1.1) + 20}" fill="#ff9e00" font-size="11" font-family="var(--font-mono)" font-weight="700">Ground Truth (ΛCDM)</text>
+      
+      <rect x="250" y="242" width="280" height="24" rx="6" fill="rgba(255, 42, 109, 0.18)" stroke="#ff2a6d"/>
+      <text x="390" y="258" fill="#ff2a6d" font-size="11" text-anchor="middle" font-family="var(--font-mono)" font-weight="700">ABSORBED SYSTEMATIC: Δw = +${(d * 0.08).toFixed(2)}</text>
     `;
   }
 
   svg.innerHTML = content;
 
-  // Update readouts
+  // Update statistics cards
   const inferredW = (-1.00 + d * 0.08).toFixed(2);
-  document.getElementById('driftValue').textContent = d.toFixed(1) + 'σ';
-  document.getElementById('estimate').textContent = 'w = ' + inferredW;
-  document.getElementById('bias').textContent = experimentRevealed ? '+' + (d * 0.08).toFixed(2) + ' (Biased)' : 'Sealed';
-  document.getElementById('bias').style.color = experimentRevealed ? 'var(--coral)' : 'var(--muted)';
-  
-  const tag = document.getElementById('degeneracyTag');
+  document.getElementById('statEstimate').textContent = `w = ${inferredW}`;
+  document.getElementById('statBias').textContent = hubbleRevealed ? `+${(d * 0.08).toFixed(2)} (Biased)` : 'Sealed';
+  document.getElementById('statBias').style.color = hubbleRevealed ? 'var(--coral)' : 'var(--text-muted)';
+
+  const badge = document.getElementById('chameleonBadge');
   if (d > 0.3) {
-    tag.textContent = 'Systematic perfectly masquerading as dark energy';
-    tag.className = 'coral';
+    badge.textContent = 'Systematic perfectly masquerading as dark energy';
+    badge.className = 'coral';
   } else {
-    tag.textContent = 'Degeneracy in plain sight';
-    tag.className = 'cyan';
+    badge.textContent = 'Degeneracy in Plain Sight';
+    badge.className = 'cyan';
   }
 }
 
-if (driftSlider) {
-  driftSlider.addEventListener('input', drawExperiment);
+if (driftRange) {
+  driftRange.addEventListener('input', renderHubble);
 }
 
-const revealBtn = document.getElementById('reveal');
-if (revealBtn) {
-  revealBtn.onclick = () => {
-    experimentRevealed = !experimentRevealed;
-    revealBtn.textContent = experimentRevealed ? 'Seal evaluator truth' : 'Reveal evaluator truth';
-    revealBtn.classList.toggle('amber-btn', !experimentRevealed);
-    document.getElementById('revealText').textContent = experimentRevealed 
-      ? 'The fit passed with flying colors (χ²/dof = 1.02), yet the cosmological parameter is severely corrupted. Standard optimization cannot detect what is collinear with the model response.'
-      : 'The analyst sees only the data and fit. The evaluator holds the sealed injection manifest.';
-    drawExperiment();
+if (btnRevealTruth) {
+  btnRevealTruth.onclick = () => {
+    hubbleRevealed = !hubbleRevealed;
+    btnRevealTruth.textContent = hubbleRevealed ? 'Seal Evaluator Truth' : 'Reveal Evaluator Truth';
+    btnRevealTruth.classList.toggle('btn-amber', !hubbleRevealed);
+    btnRevealTruth.classList.toggle('btn-coral', hubbleRevealed);
+    document.getElementById('revealExplainer').textContent = hubbleRevealed
+      ? 'The fit passed with flying colors (χ²/dof = 1.02), yet the inferred universe is severely corrupted. Mathematical optimization cannot detect what is collinear with the model response.'
+      : 'The analyst sees only the data and residuals. The evaluator holds the sealed injection manifest.';
+    renderHubble();
   };
 }
-drawExperiment();
+renderHubble();
+
+// Systematic Selector Buttons
+['sysZero', 'sysDust', 'sysMalm'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.onclick = () => {
+      ['sysZero', 'sysDust', 'sysMalm'].forEach(x => {
+        const b = document.getElementById(x);
+        b.style.borderColor = 'var(--border-subtle)';
+        b.style.color = 'var(--text-main)';
+      });
+      el.style.borderColor = 'var(--cyan)';
+      el.style.color = 'var(--cyan)';
+      renderHubble();
+    };
+  }
+});
 
 /* ============================================================
-   SCENE 2: Engine & Air Gap Interactive Triggers
+   SCENE 2: Air Gap Simulation Trigger
    ============================================================ */
-const btnZero = document.getElementById('btnInjectZero');
-const btnDust = document.getElementById('btnInjectDust');
-if (btnZero && btnDust) {
-  btnZero.onclick = () => {
-    alert("Simulated Air-Gap Injection:\n[Evaluator Vault]: Planted +0.03 mag filter zero-point drift.\n[Air-Gap]: Metadata scrubbed. Seeds hashed.\n[Analyst Sandbox]: Received sanitized FITS. Baseline fit reports χ²/dof = 1.01. Parameter w drifts by +0.09 undetected.");
-  };
-  btnDust.onclick = () => {
-    alert("Simulated Air-Gap Injection:\n[Evaluator Vault]: Planted Rv = 2.4 host-dust extinction anomaly in high-mass galaxies.\n[Air-Gap]: Sanitized catalog delivered.\n[Analyst Sandbox]: Baseline BBC reports clean Hubble residuals. Dark energy figure of merit biased by 1.8σ.");
+const btnSimulateAttack = document.getElementById('btnSimulateAttack');
+if (btnSimulateAttack) {
+  btnSimulateAttack.onclick = () => {
+    alert(
+      "Simulated Adversarial Injection Flow:\n\n" +
+      "1. [Evaluator Vault]: Injected +0.03 mag chromatic filter drift into 1,000 synthetic SN light curves.\n" +
+      "2. [Air-Gap Firewall]: Metadata scrubbed. Evaluator seeds hashed. Leakage audit: 0.00%.\n" +
+      "3. [Analyst Sandbox]: Standard BBC baseline executed. Fit reports χ²/dof = 1.01. Parameter w drifts undetected by +0.16.\n\n" +
+      "Verdict: Failure successfully mapped without leaking evaluator truth."
+    );
   };
 }
 
 /* ============================================================
-   SCENE 3: Method Ablation Data & Scorecard
+   SCENE 3: Arena Tiers
    ============================================================ */
-const methodData = [
+const tierData = [
   {
-    tag: 'TIER 01: THE BASELINE IS A RESEARCH RESULT',
+    tag: 'TIER 01 / CONTROL BASELINE',
     title: 'Can established statistical tests already solve the problem?',
-    text: 'Freeze the reference pipeline and calibrate its diagnostics on clean simulations. If a simpler gradient-boosted tree or residual test wins at matched compute cost, it remains the champion.',
+    text: 'Freeze the reference pipeline and calibrate diagnostics on clean simulations. If a simpler statistical test wins at matched compute cost, it remains the champion.',
     power: '42% (Baseline)',
     powerClass: 'amber',
     bias: '0.85σ (Escapes)',
@@ -310,7 +342,7 @@ const methodData = [
     vulnerability: 'Blind to complex, non-linear multi-band dust variations at high redshift.'
   },
   {
-    tag: 'TIER 02: REASONING MUST ADD MEASURABLE VALUE',
+    tag: 'TIER 02 / AUTONOMOUS REASONING',
     title: 'Does an autonomous agent choose better diagnostic tests?',
     text: 'Provide a single agent with approved diagnostic tools, survey metadata, and a resource ceiling—with zero evaluator access. Measure whether autonomous hypothesis testing uncovers masked faults.',
     power: '68% (Moderate)',
@@ -322,7 +354,7 @@ const methodData = [
     vulnerability: 'Prone to generating speculative astrophysical hypotheses for pure Poisson noise.'
   },
   {
-    tag: 'TIER 03: PERCEPTION EXTENDS HUMAN REACH',
+    tag: 'TIER 03 / REPRESENTATION & PERCEPTION',
     title: 'Do foundation models expose features missed by tabular cuts?',
     text: 'Evaluate specialist models (AION host embeddings, AstroM3 time-series representations) with identical data access. Foundation models perceive anomalies at scale, but cannot calibrate physical likelihoods alone.',
     power: '84% (High)',
@@ -334,7 +366,7 @@ const methodData = [
     vulnerability: 'Vulnerable to out-of-distribution survey transfer shifts (e.g. DES to LSST filter shifts).'
   },
   {
-    tag: 'TIER 04: COORDINATION IS AN EXPERIMENTAL VARIABLE',
+    tag: 'TIER 04 / MULTI-AGENT COORDINATION',
     title: 'Does a multi-agent team improve reliability per dollar of compute?',
     text: 'Separate specialized roles: Investigator, Skeptical Critic, and Sandbox Verifier. Compare against a single agent at matched token and compute budgets to isolate the true effect of coordination.',
     power: '89% (Highest)',
@@ -347,33 +379,36 @@ const methodData = [
   }
 ];
 
-document.querySelectorAll('[data-method]').forEach(b => {
-  b.onclick = () => {
-    document.querySelectorAll('[data-method]').forEach(x => x.classList.toggle('selected', x === b));
-    const idx = Number(b.dataset.method);
-    const m = methodData[idx];
-    document.getElementById('methodTag').textContent = m.tag;
-    document.getElementById('methodTitle').textContent = m.title;
-    document.getElementById('methodText').textContent = m.text;
-    
-    const pEl = document.getElementById('metricPower');
-    pEl.textContent = m.power;
-    pEl.className = 'score-badge ' + m.powerClass;
+document.querySelectorAll('[data-tier]').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('[data-tier]').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
 
-    const bEl = document.getElementById('metricBias');
-    bEl.textContent = m.bias;
-    bEl.className = 'score-badge ' + m.biasClass;
+    const idx = Number(btn.dataset.tier);
+    const t = tierData[idx];
 
-    document.getElementById('metricFalseAlarm').textContent = m.falseAlarm;
-    document.getElementById('metricCost').textContent = m.cost;
-    document.getElementById('vulnerabilityText').textContent = m.vulnerability;
+    document.getElementById('arenaTag').textContent = t.tag;
+    document.getElementById('arenaTitle').textContent = t.title;
+    document.getElementById('arenaText').textContent = t.text;
+    document.getElementById('arenaVulnerability').textContent = t.vulnerability;
+
+    const p = document.getElementById('scorePower');
+    p.textContent = t.power;
+    p.className = 'score-pill ' + t.powerClass;
+
+    const b = document.getElementById('scoreBias');
+    b.textContent = t.bias;
+    b.className = 'score-pill ' + t.biasClass;
+
+    document.getElementById('scoreFalseAlarm').textContent = t.falseAlarm;
+    document.getElementById('scoreCost').textContent = t.cost;
   };
 });
 
 /* ============================================================
-   SCENE 4: Roadmap Phases
+   SCENE 4: Roadmap Timeline & Gates
    ============================================================ */
-const phases = [
+const roadmapPhases = [
   [
     'Weeks 1 to 4',
     'Reproduce the Baseline',
@@ -421,15 +456,18 @@ const phases = [
   ]
 ];
 
-const timelineEl = document.getElementById('timeline');
-if (timelineEl) {
-  timelineEl.innerHTML = phases.map((p, i) => 
-    `<button data-phase="${i}" class="${i === 1 ? 'highlight' : ''}">${p[0]}<small>${p[1]}</small></button>`
+const roadmapTimeline = document.getElementById('roadmapTimeline');
+if (roadmapTimeline) {
+  roadmapTimeline.innerHTML = roadmapPhases.map((p, i) => 
+    `<div class="timeline-step ${i === 1 ? 'spotlight' : ''}" data-phase="${i}">
+      ${p[0]}
+      <small>${p[1]}</small>
+    </div>`
   ).join('');
 
-  function setPhase(i) {
-    const p = phases[i];
-    document.getElementById('phaseTime').textContent = p[0];
+  function selectPhase(i) {
+    const p = roadmapPhases[i];
+    document.getElementById('phaseTag').textContent = p[0].toUpperCase();
     document.getElementById('phaseTitle').textContent = p[1];
     document.getElementById('phaseSummary').textContent = p[2];
     document.getElementById('phaseData').textContent = p[3];
@@ -437,20 +475,22 @@ if (timelineEl) {
     document.getElementById('phaseGate').textContent = p[5];
     document.getElementById('phasePeople').textContent = p[6];
 
-    document.querySelectorAll('[data-phase]').forEach(b => b.classList.toggle('active', Number(b.dataset.phase) === i));
-    document.getElementById('progress').style.width = [5, 20, 45, 75, 100][i] + '%';
+    document.querySelectorAll('.timeline-step').forEach(s => 
+      s.classList.toggle('active', Number(s.dataset.phase) === i)
+    );
+    document.getElementById('roadmapProgress').style.width = [5, 20, 45, 75, 100][i] + '%';
   }
 
-  document.querySelectorAll('[data-phase]').forEach(b => {
-    b.onclick = () => setPhase(Number(b.dataset.phase));
+  roadmapTimeline.querySelectorAll('.timeline-step').forEach(s => {
+    s.addEventListener('click', () => selectPhase(Number(s.dataset.phase)));
   });
-  setPhase(0);
+  selectPhase(0);
 }
 
 /* ============================================================
    SCENE 5: Probes & Horizon
    ============================================================ */
-const probeData = [
+const probeDetails = [
   {
     tag: 'INITIAL SCOPE / STAGE 1',
     title: 'Supernova Cosmology (SNe Ia)',
@@ -477,10 +517,14 @@ const probeData = [
   }
 ];
 
-document.querySelectorAll('[data-probe]').forEach(b => {
-  b.onclick = () => {
-    document.querySelectorAll('[data-probe]').forEach(x => x.classList.toggle('selected', x === b));
-    const p = probeData[Number(b.dataset.probe)];
+document.querySelectorAll('.probe-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.probe-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    const idx = Number(btn.dataset.probe);
+    const p = probeDetails[idx];
+
     document.getElementById('probeTag').textContent = p.tag;
     document.getElementById('probeTitle').textContent = p.title;
     document.getElementById('probeText').textContent = p.text;
@@ -488,6 +532,6 @@ document.querySelectorAll('[data-probe]').forEach(b => {
   };
 });
 
-// Initial Hash Route
-const initialChapter = Number(location.hash.slice(1)) || 0;
-go(initialChapter);
+// Initialize to URL hash route or 0
+const initialSlide = Number(location.hash.slice(1)) || 0;
+setSlide(initialSlide);
