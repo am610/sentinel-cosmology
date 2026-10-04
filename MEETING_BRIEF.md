@@ -12,7 +12,7 @@ The scientific question is not whether an agent can execute a pipeline. It is wh
 
 The valuable result is an empirical map of scientific reliability, including limits and null results. A generic agent wrapper is unlikely to establish strong novelty. A carefully designed benchmark can produce insight into identifiability, selection of diagnostics, correlated reasoning errors and transfer across inference problems. Its novelty still needs a systematic review of blinded cosmology challenges, robustness methods and scientific agent evaluations.
 
-Your proposed contribution is the connection between physically meaningful perturbations and the inference pipeline. Sid’s public interests in scientific reasoning and scalable inference make the collaboration worth discussing, not guaranteed. [Research profile](https://smsharma.io/).
+The proposed contribution is the connection between physically meaningful perturbations and the inference pipeline.
 
 ## A five minute meeting sequence
 
@@ -48,7 +48,7 @@ The current relevant NSF program is Astronomical Sciences Core Research, formerl
 
 NSF 26 522 lists November 16, 2026 as a target date, not an absolute deadline. Proposals are accepted at any time, but later submissions may be reviewed in the following fiscal year. A twelve week pilot beginning in late September would finish after that target. Decide with the program officer whether current evidence supports a November proposal or whether a later submission is scientifically stronger. [Current solicitation](https://www.nsf.gov/funding/opportunities/mps-astro-mps-astronomical-sciences-research-programs/nsf26-522/solicitation).
 
-Do not choose a large dollar figure for effect. Cost named scientific responsibilities: domain leadership, research software engineering, student training, independent evaluation, compute, model access and maintenance. Have institutional administration supply salary, benefits, overhead and eligibility information. Seek a pilot commitment first. Institutional seed support or available compute may help, but none is assumed. BU’s IAIFI participation is useful partnership context, not evidence of funding availability. [BU announcement](https://www.bu.edu/articles/2026/bu-joins-national-science-foundation-ai-institute/).
+Do not choose a large dollar figure for effect. Cost named scientific responsibilities: domain leadership, research software engineering, student training, independent evaluation, compute, model access and maintenance. Have institutional administration supply salary, benefits, overhead and eligibility information. Seek a pilot commitment first. Institutional seed support or available compute may help, but none is assumed.
 
 Broader impacts should be concrete: openly documented benchmark protocols where permissions permit, student research training, reproducibility exercises and adoption tutorials. Do not imply that building a website alone satisfies broader impacts.
 

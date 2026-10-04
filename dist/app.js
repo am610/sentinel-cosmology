@@ -261,13 +261,13 @@ const slideData = [
   },
   {
     /* 4 */
-    talk: "Here is our pragmatic roadmap. Weeks 1 to 4 reproduce the baseline. Weeks 5 to 12 is the primary ask for Sid: a jointly scoped, blinded pilot with 1 injection family and 1 cosmological parameter, resulting in the first co-authored benchmark paper.",
-    objective: "Offer an immediate, de-risked collaborative entry point: a concrete 12-week blinded pilot resulting in a joint paper.",
+    talk: "Here is our pragmatic roadmap. Weeks 1 to 4 reproduce the baseline. Weeks 5 to 12 is the blinded pilot: 1 injection family and 1 cosmological parameter, resulting in the first benchmark paper.",
+    objective: "Offer an immediate, de-risked entry point: a concrete 12 week blinded pilot resulting in a paper.",
     defense: "Even a negative result (proving where AI fails) is an immediate high-impact publication in precision astrophysics.",
     beats: [
-      "A pragmatic <span class='hl-cyan'>12-Week Joint Pilot</span>: low risk, high rigor, immediate paper deliverable.",
-      "Weeks 1–4: Baseline reproduction. <span class='hl-amber'>Weeks 5–12: Joint blinded pilot</span> on 1 systematic injection family & w₀.",
-      "Result: The first <span class='hl-emerald'>co-authored adversarial benchmark paper</span>, establishing empirical grounds for NSF funding."
+      "A pragmatic <span class='hl-cyan'>12 Week Pilot</span>: low risk, high rigor, immediate paper deliverable.",
+      "Weeks 1–4: Baseline reproduction. <span class='hl-amber'>Weeks 5–12: Blinded pilot</span> on 1 systematic injection family & w₀.",
+      "Result: The first <span class='hl-emerald'>adversarial benchmark paper</span>, establishing empirical grounds for NSF funding."
     ]
   },
   {
@@ -283,13 +283,13 @@ const slideData = [
   },
   {
     /* 6 */
-    talk: "The collaboration ask for Sid: combine Ayan’s DESC pipeline and SNANA ground-truth mastery with Sid’s leadership in simulation-based inference and foundation reasoning evals. Target NSF 26-522 Core Research with a science-first proposal focused on Rubin LSST readiness.",
-    objective: "Propose an exact, complementary division of labor for an NSF 26-522 Core Research proposal.",
+    talk: "The next step: build on Ayan’s DESC pipeline and SNANA ground truth expertise, with partners in simulation based inference and reasoning evaluation still to be identified, and connect this benchmark to the companion AI for Science test run on the DES 5 year supernova analysis. Target NSF 26-522 Core Research with a science-first proposal focused on Rubin LSST readiness.",
+    objective: "Describe the scope and the partners still needed for an NSF 26-522 Core Research proposal.",
     defense: "This is a science-first proposal grounded in real Rubin DESC infrastructure, not generic computer science hype.",
     beats: [
-      "The Partnership: <span class='hl-cyan'>Ayan's DESC pipeline & SNANA mastery</span> + <span class='hl-amber'>Sid's SBI & reasoning evals leadership</span>.",
+      "The Plan: <span class='hl-cyan'>Ayan's DESC pipeline & SNANA mastery</span> + <span class='hl-amber'>partners in SBI and reasoning evals, to be identified</span>.",
       "Targeting <span class='hl-emerald'>NSF 26-522 Core Research</span>: Science-first, empirically grounded, Rubin LSST-focused.",
-      "Action: Co-scope the blinded pilot protocol and establish <span class='hl-cyan'>IAIFI / BU computational alignment</span>."
+      "Action: Scope the blinded pilot protocol and identify <span class='hl-cyan'>computational and evaluation partners</span>."
     ]
   },
   {
@@ -936,12 +936,12 @@ const roadmapPhases = [
   ],
   [
     'Weeks 5 to 12',
-    'The Blinded Pilot (Sid & Ayan)',
-    'Test scientific judgment before scaling infrastructure. Scope jointly with BU/IAIFI.',
+    'The Blinded Pilot',
+    'Test scientific judgment before scaling infrastructure. Scope with an independent evaluator.',
     'Fresh simulated realizations with clean and perturbed cases. Sample size determined by statistical power.',
     'Baseline vs Single Agent comparison, leakage audit, cost accounting, and preliminary failure map.',
-    'Are false alarms controlled at α=5%? Is the injection identifiable from allowed evidence? Co-author Pilot Paper.',
-    'Scientist (Ayan), AI Lead (Sid), RSE, and Independent Evaluator. Capped model API spend.'
+    'Are false alarms controlled at α=5%? Is the injection identifiable from allowed evidence? Pilot paper.',
+    'Scientist (Ayan), AI Lead (to be identified), RSE, and Independent Evaluator. Capped model API spend.'
   ],
   [
     'Months 4 to 9',
